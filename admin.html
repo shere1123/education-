@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>क्विस एडमिन प्यानल (50 Questions Auto-Set System)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            margin: 0; padding: 20px;
+        }
+        .admin-container {
+            max-width: 650px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px dashed #4f46e5;
+        }
+        h2 {
+            color: #4f46e5;
+            margin-top: 0;
+            font-size: 22px;
+            text-align: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 12px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #1e293b;
+        }
+        .form-group select, .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .form-group select:focus, .form-group input:focus, .form-group textarea:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #e2e8f0;
+            padding: 5px;
+            border-radius: 12px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            background: transparent;
+            color: #475569;
+            transition: 0.2s;
+        }
+        .mode-btn.active {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+        .upload-btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s;
+        }
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+        .success-msg {
+            display: none;
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            border: 1px solid #10b981;
+        }
+        .hint-text {
+            font-size: 12.5px;
+            color: #475569;
+            margin-top: 6px;
+            line-height: 1.5;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .section-box { display: none; }
+        .section-box.active { display: block; }
+        
+        .single-option-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .single-option-row input[type="text"] {
+            flex: 1;
+        }
+        .correct-radio-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #16a34a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .manage-container {
+            max-width: 650px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px dashed #ef4444;
+        }
+        .manage-container h3 {
+            color: #ef4444;
+            margin-top: 0;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+        .question-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .question-info {
+            font-size: 14px;
+            color: #1e293b;
+            word-break: break-word;
+            flex: 1;
+        }
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .delete-btn:hover { background: #dc2626; }
+        .delete-all-btn {
+            background: #b91c1c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .delete-all-btn:hover { background: #991b1b; }
+        .auto-set-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 18px;
+            border: 1px solid #c7d2fe;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <h2>🛠️ क्विज एडमिन प्यानल (50Q Set System)</h2>
+        <div id="successMsg" class="success-msg">✅ प्रश्नहरू सफलतापूर्वक सेभ भए!</div>
+        
+        <div class="mode-selector">
+            <button type="button" class="mode-btn active" id="singleTabBtn" onclick="switchMode('single')">१-१ प्रश्न हाल्ने</button>
+            <button type="button" class="mode-btn" id="bulkTabBtn" onclick="switchMode('bulk')">एकैचोटि धेरै (Bulk) हाल्ने</button>
+        </div>
+
+        <form id="questionForm" onsubmit="handleQuestionUpload(event)">
+            <div class="form-group">
+                <label for="adminCategory">१. कुन क्याटेगोरी (Category) मा राख्ने?</label>
+                <select id="adminCategory" required onchange="updateAutoSetAndList()">
+                    <option value="Loksewa">लोकसेवा सामान्य ज्ञान</option>
+                    <option value="TSC">शिक्षक सेवा आयोग</option>
+                    <option value="Banking">बैंकिङ तयारी</option>
+                    <option value="Police">नेपाल प्रहरी</option>
+                    <option value="Army">नेपाली सेना</option>
+                    <option value="APF">सशस्त्र प्रहरी</option>
+                    <option value="Korean">कोरियन भाषा</option>
+                    <option value="Japanese">जापानी भाषा</option>
+                    <option value="English">अंग्रेजी भाषा</option>
+                    <option value="German">जर्मन भाषा</option>
+                    <option value="Sansthan">संस्थान तयारी</option>
+                    <option value="Health">स्वास्थ्य सेवा</option>
+                    <option value="Engineering">इन्जिनियरिङ सेवा</option>
+                    <option value="Computer">कम्प्युटर अपरेटर</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quizTypeTarget">२. क्विजको प्रकार (Quiz Mode) छान्नुहोस्:</label>
+                <select id="quizTypeTarget" required onchange="updateAutoSetAndList()">
+                    <option value="test">Test Quiz (टाइम नभएको)</option>
+                    <option value="live">Live Quiz (१५ सेकेन्ड टाइमर भएको)</option>
+                </select>
+            </div>
+
+            <div id="autoSetDisplay" class="auto-set-badge">
+                📌 वर्तमान सेट स्थिति: <b>लोड हुँदैछ...</b>
+            </div>
+
+            <div id="singleSection" class="section-box active">
+                <div class="form-group">
+                    <label>प्रश्न (Question):</label>
+                    <input type="text" id="adminQuestion" placeholder="यहाँ प्रश्न लेख्नुहोस्...">
+                </div>
+                
+                <label style="font-weight: bold; font-size: 14px; margin-bottom: 6px; display:block;">अप्सनहरू र सहि उत्तर:</label>
+                
+                <div class="single-option-row">
+                    <input type="text" id="adminOpt1" placeholder="पहिलो अप्सन">
+                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="0" checked> सहि (Correct)</label>
+                </div>
+                <div class="single-option-row">
+                    <input type="text" id="adminOpt2" placeholder="दोस्रो अप्सन">
+                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="1"> सहि (Correct)</label>
+                </div>
+                <div class="single-option-row">
+                    <input type="text" id="adminOpt3" placeholder="तेस्रो अप्सन">
+                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="2"> सहि (Correct)</label>
+                </div>
+                <div class="single-option-row">
+                    <input type="text" id="adminOpt4" placeholder="चौथो अप्सन">
+                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="3"> सहि (Correct)</label>
+                </div>
+            </div>
+
+            <div id="bulkSection" class="section-box">
+                <div class="form-group">
+                    <label>एकैचोटि प्रश्नहरू तल लगातार पेस्ट गर्नुहोस् (Bulk Text):</label>
+                    <textarea id="bulkTextArea" rows="12" placeholder="लाइन खाली नछोडी लगातार प्रश्न र अप्सनहरू पेस्ट गर्नुहोस्..."></textarea>
+                    <div class="hint-text">
+                        <b>📝 फर्म्याट नियम:</b> बीचमा लाइन खाली नछोडी लेख्नुहोस्। सहि उत्तरको अगाडि <b>✔</b> वा <b>✅</b> दिनुहोला। (५० भन्दा बढी भएमा स्वतः बाँडिएर नयाँ सेटमा जान्छ।)
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="upload-btn" style="margin-top: 15px;">➕ Firebase मा अपलोड गर्नुहोस्</button>
+        </form>
+    </div>
+
+    <div class="manage-container">
+        <h3>🗑️ प्रश्न व्यवस्थापन तथा डिलीट गर्ने सेक्सन</h3>
+        
+        <div class="form-group" style="margin-top: 15px;">
+            <label for="filterSetSelect">कुन सेटका प्रश्नहरू हेर्ने?</label>
+            <select id="filterSetSelect" onchange="loadManageQuestions()">
+                <option value="ALL">सबै सेटहरू</option>
+            </select>
+        </div>
+
+        <div id="questionListContainer" style="max-height: 350px; overflow-y: auto; margin-top: 15px;">
+            <p style="text-align: center; color: #94a3b8; font-size: 13px;">लोड हुँदैछ...</p>
+        </div>
+
+        <button type="button" class="delete-all-btn" onclick="deleteAllQuestionsInCurrentSelection()">⚠️ यो छनौट भएका प्रश्नहरू मेटाउनुहोस्</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAe32qMUjBMUBL4N6jS8eyVixK2gHMVuXw",
+            authDomain: "gk-nepal-df869.firebaseapp.com",
+            projectId: "gk-nepal-df869",
+            storageBucket: "gk-nepal-df869.firebasestorage.app",
+            messagingSenderId: "454233438620",
+            appId: "1:454233438620:web:a8292322e04ffcf2b23059"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentUploadMode = 'single';
+        let activeTargetSet = "Set 1";
+        let activeSetCount = 0;
+
+        window.switchMode = function(mode) {
+            currentUploadMode = mode;
+            let singleSec = document.getElementById('singleSection');
+            let bulkSec = document.getElementById('bulkSection');
+            let singleBtn = document.getElementById('singleTabBtn');
+            let bulkBtn = document.getElementById('bulkTabBtn');
+
+            if (mode === 'single') {
+                singleSec.classList.add('active');
+                bulkSec.classList.remove('active');
+                singleBtn.classList.add('active');
+                bulkBtn.classList.remove('active');
+            } else {
+                singleSec.classList.remove('active');
+                bulkSec.classList.add('active');
+                singleBtn.classList.remove('active');
+                bulkBtn.classList.add('active');
+            }
+        }
+
+        // क्याटेगोरी र मोड अनुसार कुन सेटमा ५० वटा पुगेको छ वा छैन चेक गरी सही सेट निर्धारण गर्ने
+        window.updateAutoSetAndList = async function() {
+            let cat = document.getElementById('adminCategory').value;
+            let qMode = document.getElementById('quizTypeTarget').value;
+
+            try {
+                const qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode));
+                const querySnapshot = await getDocs(qRef);
+
+                let setCounts = {};
+                let allSetsSet = new Set();
+
+                querySnapshot.forEach(docSnap => {
+                    let data = docSnap.data();
+                    let sName = data.setName || "Set 1";
+                    allSetsSet.add(sName);
+                    setCounts[sName] = (setCounts[sName] || 0) + 1;
+                });
+
+                let sortedSets = Array.from(allSetsSet).sort((a, b) => {
+                    let numA = parseInt(a.replace(/\D/g, '')) || 0;
+                    let numB = parseInt(b.replace(/\D/g, '')) || 0;
+                    return numA - numB;
+                });
+
+                if (sortedSets.length === 0) {
+                    activeTargetSet = "Set 1";
+                    activeSetCount = 0;
+                } else {
+                    let lastSet = sortedSets[sortedSets.length - 1];
+                    let countInLast = setCounts[lastSet] || 0;
+
+                    if (countInLast < 50) {
+                        activeTargetSet = lastSet;
+                        activeSetCount = countInLast;
+                    } else {
+                        let lastNum = parseInt(lastSet.replace(/\D/g, '')) || sortedSets.length;
+                        activeTargetSet = `Set ${lastNum + 1}`;
+                        activeSetCount = 0;
+                        sortedSets.push(activeTargetSet);
+                    }
+                }
+
+                // UI मा ब्याज अपडेट गर्ने
+                document.getElementById('autoTestBadgeDisplay') || null; // safe check
+                document.getElementById('autoSetDisplay').innerHTML = `📌 हालको अपलोडिने सेट: <b>${activeTargetSet}</b> (यसमा ${activeSetCount}/50 प्रश्न छन्)`;
+
+                // फिल्टर ड्रपडाउन अपडेट गर्ने
+                let filterSelect = document.getElementById('filterSetSelect');
+                let currentSelectedFilter = filterSelect.value;
+                filterSelect.innerHTML = '<option value="ALL">सबै सेटहरू</option>';
+
+                sortedSets.forEach(sName => {
+                    let opt = document.createElement('option');
+                    opt.value = sName;
+                    opt.textContent = `${sName} (${setCounts[sName] || 0} वटा)`;
+                    filterSelect.appendChild(opt);
+                });
+
+                if (Array.from(filterSelect.options).some(opt => opt.value === currentSelectedFilter)) {
+                    filterSelect.value = currentSelectedFilter;
+                }
+
+                loadManageQuestions();
+            } catch (error) {
+                console.error("Auto Set Calculation Error: ", error);
+            }
+        }
+
+        window.handleQuestionUpload = async function(e) {
+            e.preventDefault();
+            
+            let cat = document.getElementById('adminCategory').value;
+            let qMode = document.getElementById('quizTypeTarget').value;
+
+            try {
+                if (currentUploadMode === 'single') {
+                    // यदि हालको सेटमा ५० पुगेको छ भने स्वतः अर्को सेट बनाउने
+                    if (activeSetCount >= 50) {
+                        let currentNum = parseInt(activeTargetSet.replace(/\D/g, '')) || 1;
+                        activeTargetSet = `Set ${currentNum + 1}`;
+                        activeSetCount = 0;
+                    }
+
+                    let q = document.getElementById('adminQuestion').value;
+                    let o1 = document.getElementById('adminOpt1').value;
+                    let o2 = document.getElementById('adminOpt2').value;
+                    let o3 = document.getElementById('adminOpt3').value;
+                    let o4 = document.getElementById('adminOpt4').value;
+                    let optionsArr = [o1, o2, o3, o4];
+
+                    let radios = document.getElementsByName('correctRadio');
+                    let correctIndex = 0;
+                    for (let i = 0; i < radios.length; i++) {
+                        if (radios[i].checked) {
+                            correctIndex = parseInt(radios[i].value);
+                            break;
+                        }
+                    }
+
+                    let correctAnsText = optionsArr[correctIndex];
+
+                    await addDoc(collection(db, "questions"), {
+                        category: cat,
+                        mode: qMode,
+                        setName: activeTargetSet,
+                        question: q,
+                        options: optionsArr,
+                        correctAnswer: correctAnsText,
+                        createdAt: new Date()
+                    });
+
+                    document.getElementById('adminQuestion').value = '';
+                    document.getElementById('adminOpt1').value = '';
+                    document.getElementById('adminOpt2').value = '';
+                    document.getElementById('adminOpt3').value = '';
+                    document.getElementById('adminOpt4').value = '';
+
+                } else {
+                    let bulkText = document.getElementById('bulkTextArea').value;
+                    let lines = bulkText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    let addedCount = 0;
+
+                    for (let i = 0; i < lines.length; i += 5) {
+                        if (i + 4 < lines.length) {
+                            // यदि हालको सेटमा ५० पुग्यो भने नयाँ सेटमा स्विच गर्ने
+                            if (activeSetCount >= 50) {
+                                let currentNum = parseInt(activeTargetSet.replace(/\D/g, '')) || 1;
+                                activeTargetSet = `Set ${currentNum + 1}`;
+                                activeSetCount = 0;
+                            }
+
+                            let qText = lines[i].replace(/^(प्रश्न:|Q[\.\:]?)\s*/i, '');
+                            let rawOptions = [lines[i+1], lines[i+2], lines[i+3], lines[i+4]];
+                            let cleanOptions = [];
+                            let detectedCorrectAnswer = "";
+
+                            rawOptions.forEach(optLine => {
+                                let isCorrectMarked = /^[✔✅\*]/i.test(optLine);
+                                let cleaned = optLine.replace(/^[✔✅\*]\s*/, '')
+                                                     .replace(/^[A-Da-d][\.\)]\s*/, '').trim();
+
+                                if (isCorrectMarked) {
+                                    detectedCorrectAnswer = cleaned;
+                                }
+                                cleanOptions.push(cleaned);
+                            });
+
+                            if (!detectedCorrectAnswer && cleanOptions.length > 0) {
+                                detectedCorrectAnswer = cleanOptions[0];
+                            }
+
+                            await addDoc(collection(db, "questions"), {
+                                category: cat,
+                                mode: qMode,
+                                setName: activeTargetSet,
+                                question: qText,
+                                options: cleanOptions,
+                                correctAnswer: detectedCorrectAnswer,
+                                createdAt: new Date()
+                            });
+
+                            addedCount++;
+                            activeSetCount++;
+                        }
+                    }
+
+                    if (addedCount === 0) {
+                        alert('⚠️ कृपया सही फर्म्याटमा डेटा राख्नुहोस्!');
+                        return;
+                    }
+                    document.getElementById('bulkTextArea').value = '';
+                }
+
+                let successMsg = document.getElementById('successMsg');
+                successMsg.style.display = 'block';
+                setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
+
+                updateAutoSetAndList();
+            } catch (error) {
+                console.error("Upload Error: ", error);
+                alert("अपलोड गर्दा त्रुटि भयो!");
+            }
+        }
+
+        window.loadManageQuestions = async function() {
+            let cat = document.getElementById('adminCategory').value;
+            let qMode = document.getElementById('quizTypeTarget').value;
+            let selectedSetFilter = document.getElementById('filterSetSelect').value;
+            let container = document.getElementById('questionListContainer');
+            container.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 13px;">लोड हुँदैछ...</p>';
+
+            try {
+                let qRef;
+                if (!selectedSetFilter || selectedSetFilter === 'ALL') {
+                    qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode));
+                } else {
+                    qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode), where("setName", "==", selectedSetFilter));
+                }
+
+                const querySnapshot = await getDocs(qRef);
+                
+                container.innerHTML = '';
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 13px;">यस सेक्सनमा कुनै पनि प्रश्नहरू छैनन्।</p>';
+                    return;
+                }
+
+                let index = 0;
+                querySnapshot.forEach((docSnap) => {
+                    index++;
+                    let item = docSnap.data();
+                    let docId = docSnap.id;
+                    let displaySet = item.setName || 'Set 1';
+
+                    let div = document.createElement('div');
+                    div.className = 'question-item';
+                    div.innerHTML = `
+                        <div class="question-info"><b>${index}. [${displaySet}]</b> ${item.question} <br><small style="color: #16a34a;">सहि उत्तर: ${item.correctAnswer}</small></div>
+                        <button class="delete-btn" onclick="deleteSingleQuestion('${docId}')">❌ डिलीट</button>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error("Fetch Error: ", error);
+                container.innerHTML = '<p style="text-align: center; color: #ef4444; font-size: 13px;">डाटा लोड गर्न सकिएन।</p>';
+            }
+        }
+
+        window.deleteSingleQuestion = async function(docId) {
+            if (confirm('के तपाईं यो प्रश्न मेटाउन चाहनुहुन्छ?')) {
+                try {
+                    await deleteDoc(doc(db, "questions", docId));
+                    updateAutoSetAndList();
+                } catch (error) {
+                    console.error("Delete Error: ", error);
+                }
+            }
+        }
+
+        window.deleteAllQuestionsInCurrentSelection = async function() {
+            let cat = document.getElementById('adminCategory').value;
+            let qMode = document.getElementById('quizTypeTarget').value;
+            let selectedSetFilter = document.getElementById('filterSetSelect').value;
+
+            let confirmText = (selectedSetFilter === 'ALL') 
+                ? `⚠️ के तपाईं ${cat} का सम्पूर्ण सेटहरूका प्रश्नहरू स्थायी रूपमा मेटाउन चाहनुहुन्छ?` 
+                : `⚠️ के तपाईं ${cat} को ${selectedSetFilter} का सबै प्रश्नहरू मेटाउन चाहनुहुन्छ?`;
+
+            if (confirm(confirmText)) {
+                try {
+                    let qRef;
+                    if (selectedSetFilter === 'ALL') {
+                        qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode));
+                    } else {
+                        qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode), where("setName", "==", selectedSetFilter));
+                    }
+
+                    const querySnapshot = await getDocs(qRef);
+                    let deletePromises = [];
+                    querySnapshot.forEach((docSnap) => {
+                        deletePromises.push(deleteDoc(doc(db, "questions", docSnap.id)));
+                    });
+
+                    await Promise.all(deletePromises);
+                    updateAutoSetAndList();
+                    alert("सफलतापूर्वक मेटाइए!");
+                } catch (error) {
+                    console.error("Delete All Error: ", error);
+                }
+            }
+        }
+
+        window.onload = function() {
+            updateAutoSetAndList();
+        };
+    </script>
+</body>
+</html>
