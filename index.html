@@ -158,8 +158,12 @@
         .skip-ad-btn:hover, .popup-ok-btn:hover { background-color: #059669; }
 
         .banner-ad {
-            background-color: #1e293b; color: #94a3b8; text-align: center; padding: 8px;
-            margin: 8px 0; font-size: 11px; border: 1px dashed #475569; border-radius: 8px;
+            text-align: center;
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+            min-height: 50px;
+            overflow: hidden;
         }
 
         .quiz-container-box {
@@ -436,6 +440,36 @@
             } catch(e) {}
         }
 
+        // ब्यानर विज्ञापन लोड गर्ने सुरक्षित फंक्शन
+        function loadBannerAds() {
+            const adContainers = [document.getElementById('topBannerAd'), document.getElementById('bottomBannerAd')];
+            adContainers.forEach(container => {
+                if (container) {
+                    container.innerHTML = ''; // पुरानो खाली गर्ने
+                    
+                    // ad options script
+                    const scriptOpt = document.createElement('script');
+                    scriptOpt.type = 'text/javascript';
+                    scriptOpt.text = `
+                        atOptions = {
+                            'key' : 'be488ae5e4d2e4e21d6d31f50076d971',
+                            'format' : 'iframe',
+                            'height' : 50,
+                            'width' : 320,
+                            'params' : {}
+                        };
+                    `;
+                    container.appendChild(scriptOpt);
+
+                    // invoke script
+                    const scriptInvoke = document.createElement('script');
+                    scriptInvoke.type = 'text/javascript';
+                    scriptInvoke.src = 'https://www.highrevenueformat.com/be488ae5e4d2e4e21d6d31f50076d971/invoke.js';
+                    container.appendChild(scriptInvoke);
+                }
+            });
+        }
+
         window.openModal = function(catKey, title) {
             selectedCategoryKey = catKey;
             selectedCategoryTitle = title;
@@ -584,7 +618,7 @@
             let timerHtml = (quizMode === 'live') ? `<span class="timer-display">समय: <span id="timeCount">15</span> सेकेन्ड</span>` : '';
 
             screenContent.innerHTML = `
-                <div class="banner-ad">[ TOP BANNER AD ]</div>
+                <div class="banner-ad" id="topBannerAd"></div>
                 <div class="quiz-container-box">
                     <div class="quiz-header-title">${headerTitle} (${currentSetName})</div>
                     <div class="quiz-sub-title">${selectedCategoryTitle}</div>
@@ -611,8 +645,11 @@
                     ${optionsHTML}
                     <button class="back-btn" onclick="closeQuizScreen()">बन्द गर्नुहोस्</button>
                 </div>
-                <div class="banner-ad">[ BOTTOM BANNER AD ]</div>
+                <div class="banner-ad" id="bottomBannerAd"></div>
             `;
+
+            // प्रश्न लोड भएपछि ब्यानर विज्ञापन ट्रिगर गर्ने
+            setTimeout(loadBannerAds, 100);
 
             if (quizMode === 'live') {
                 timeLeft = 15;
