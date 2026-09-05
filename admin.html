@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>क्विस एडमिन प्यानल (50 Questions Auto-Set System)</title>
+    <title>एडमिन प्यानल (Quiz, News & Vacancy Auto-Set System)</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -71,6 +71,7 @@
             background: transparent;
             color: #475569;
             transition: 0.2s;
+            font-size: 13px;
         }
         .mode-btn.active {
             background: #4f46e5;
@@ -211,80 +212,131 @@
 <body>
 
     <div class="admin-container">
-        <h2>🛠️ क्विज एडमिन प्यानल (50Q Set System)</h2>
-        <div id="successMsg" class="success-msg">✅ प्रश्नहरू सफलतापूर्वक सेभ भए!</div>
+        <h2>🛠️ एडमिन प्यानल (Quiz, News & Vacancy)</h2>
+        <div id="successMsg" class="success-msg">✅ सफलतापूर्वक सेभ भयो!</div>
         
+        <!-- मुख्य सेक्सन स्विच गर्ने बटनहरू -->
         <div class="mode-selector">
-            <button type="button" class="mode-btn active" id="singleTabBtn" onclick="switchMode('single')">१-१ प्रश्न हाल्ने</button>
-            <button type="button" class="mode-btn" id="bulkTabBtn" onclick="switchMode('bulk')">एकैचोटि धेरै (Bulk) हाल्ने</button>
+            <button type="button" class="mode-btn active" id="mainTabQuiz" onclick="switchMainTab('quiz')">🧩 क्विज (Quiz)</button>
+            <button type="button" class="mode-btn" id="mainTabNews" onclick="switchMainTab('news')">📰 समाचार (News)</button>
+            <button type="button" class="mode-btn" id="mainTabVacancy" onclick="switchMainTab('vacancy')">💼 भ्याकेन्सी (Vacancy)</button>
         </div>
 
-        <form id="questionForm" onsubmit="handleQuestionUpload(event)">
-            <div class="form-group">
-                <label for="adminCategory">१. कुन क्याटेगोरी (Category) मा राख्ने?</label>
-                <select id="adminCategory" required onchange="updateAutoSetAndList()">
-                    <option value="Loksewa">लोकसेवा सामान्य ज्ञान</option>
-                    <option value="TSC">शिक्षक सेवा आयोग</option>
-                    <option value="Banking">बैंकिङ तयारी</option>
-                    <option value="Police">नेपाल प्रहरी</option>
-                    <option value="Army">नेपाली सेना</option>
-                    <option value="APF">सशस्त्र प्रहरी</option>
-                    <option value="Korean">कोरियन भाषा</option>
-                    <option value="Japanese">जापानी भाषा</option>
-                    <option value="English">अंग्रेजी भाषा</option>
-                    <option value="German">जर्मन भाषा</option>
-                    <option value="Sansthan">संस्थान तयारी</option>
-                    <option value="Health">स्वास्थ्य सेवा</option>
-                    <option value="Engineering">इन्जिनियरिङ सेवा</option>
-                    <option value="Computer">कम्प्युटर अपरेटर</option>
-                </select>
-            </div>
+        <form id="contentForm" onsubmit="handleContentUpload(event)">
+            
+            <!-- क्विज सेक्सन -->
+            <div id="quizSectionContainer" class="section-box active">
+                <div class="mode-selector" style="margin-bottom: 15px;">
+                    <button type="button" class="mode-btn active" id="singleTabBtn" onclick="switchQuizMode('single')">१-१ प्रश्न हाल्ने</button>
+                    <button type="button" class="mode-btn" id="bulkTabBtn" onclick="switchQuizMode('bulk')">एकैचोटि धेरै (Bulk)</button>
+                </div>
 
-            <div class="form-group">
-                <label for="quizTypeTarget">२. क्विजको प्रकार (Quiz Mode) छान्नुहोस्:</label>
-                <select id="quizTypeTarget" required onchange="updateAutoSetAndList()">
-                    <option value="test">Test Quiz (टाइम नभएको)</option>
-                    <option value="live">Live Quiz (१५ सेकेन्ड टाइमर भएको)</option>
-                </select>
-            </div>
-
-            <div id="autoSetDisplay" class="auto-set-badge">
-                📌 वर्तमान सेट स्थिति: <b>लोड हुँदैछ...</b>
-            </div>
-
-            <div id="singleSection" class="section-box active">
                 <div class="form-group">
-                    <label>प्रश्न (Question):</label>
-                    <input type="text" id="adminQuestion" placeholder="यहाँ प्रश्न लेख्नुहोस्...">
+                    <label for="adminCategory">१. कुन क्याटेगोरी (Category) मा राख्ने?</label>
+                    <select id="adminCategory" onchange="updateAutoSetAndList()">
+                        <option value="Loksewa">लोकसेवा सामान्य ज्ञान</option>
+                        <option value="TSC">शिक्षक सेवा आयोग</option>
+                        <option value="Banking">बैंकिङ तयारी</option>
+                        <option value="Police">नेपाल प्रहरी</option>
+                        <option value="Army">नेपाली सेना</option>
+                        <option value="APF">सशस्त्र प्रहरी</option>
+                        <option value="Korean">कोरियन भाषा</option>
+                        <option value="Japanese">जापानी भाषा</option>
+                        <option value="English">अंग्रेजी भाषा</option>
+                        <option value="German">जर्मन भाषा</option>
+                        <option value="Sansthan">संस्थान तयारी</option>
+                        <option value="Health">स्वास्थ्य सेवा</option>
+                        <option value="Engineering">इन्जिनियरिङ सेवा</option>
+                        <option value="Computer">कम्प्युटर अपरेटर</option>
+                    </select>
                 </div>
-                
-                <label style="font-weight: bold; font-size: 14px; margin-bottom: 6px; display:block;">अप्सनहरू र सहि उत्तर:</label>
-                
-                <div class="single-option-row">
-                    <input type="text" id="adminOpt1" placeholder="पहिलो अप्सन">
-                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="0" checked> सहि (Correct)</label>
-                </div>
-                <div class="single-option-row">
-                    <input type="text" id="adminOpt2" placeholder="दोस्रो अप्सन">
-                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="1"> सहि (Correct)</label>
-                </div>
-                <div class="single-option-row">
-                    <input type="text" id="adminOpt3" placeholder="तेस्रो अप्सन">
-                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="2"> सहि (Correct)</label>
-                </div>
-                <div class="single-option-row">
-                    <input type="text" id="adminOpt4" placeholder="चौथो अप्सन">
-                    <label class="correct-radio-label"><input type="radio" name="correctRadio" value="3"> सहि (Correct)</label>
-                </div>
-            </div>
 
-            <div id="bulkSection" class="section-box">
                 <div class="form-group">
-                    <label>एकैचोटि प्रश्नहरू तल लगातार पेस्ट गर्नुहोस् (Bulk Text):</label>
-                    <textarea id="bulkTextArea" rows="12" placeholder="लाइन खाली नछोडी लगातार प्रश्न र अप्सनहरू पेस्ट गर्नुहोस्..."></textarea>
-                    <div class="hint-text">
-                        <b>📝 फर्म्याट नियम:</b> बीचमा लाइन खाली नछोडी लेख्नुहोस्। सहि उत्तरको अगाडि <b>✔</b> वा <b>✅</b> दिनुहोला। (५० भन्दा बढी भएमा स्वतः बाँडिएर नयाँ सेटमा जान्छ।)
+                    <label for="quizTypeTarget">२. क्विजको प्रकार (Quiz Mode) छान्नुहोस्:</label>
+                    <select id="quizTypeTarget" onchange="updateAutoSetAndList()">
+                        <option value="test">Test Quiz (टाइम नभएको)</option>
+                        <option value="live">Live Quiz (१५ सेकेन्ड टाइमर भएको)</option>
+                    </select>
+                </div>
+
+                <div id="autoSetDisplay" class="auto-set-badge">
+                    📌 वर्तमान सेट स्थिति: <b>लोड हुँदैछ...</b>
+                </div>
+
+                <div id="singleSection" class="section-box active">
+                    <div class="form-group">
+                        <label>प्रश्न (Question):</label>
+                        <input type="text" id="adminQuestion" placeholder="यहाँ प्रश्न लेख्नुहोस्...">
                     </div>
+                    
+                    <label style="font-weight: bold; font-size: 14px; margin-bottom: 6px; display:block;">अप्सनहरू र सहि उत्तर:</label>
+                    
+                    <div class="single-option-row">
+                        <input type="text" id="adminOpt1" placeholder="पहिलो अप्सन">
+                        <label class="correct-radio-label"><input type="radio" name="correctRadio" value="0" checked> सहि (Correct)</label>
+                    </div>
+                    <div class="single-option-row">
+                        <input type="text" id="adminOpt2" placeholder="दोस्रो अप्सन">
+                        <label class="correct-radio-label"><input type="radio" name="correctRadio" value="1"> सहि (Correct)</label>
+                    </div>
+                    <div class="single-option-row">
+                        <input type="text" id="adminOpt3" placeholder="तेस्रो अप्सन">
+                        <label class="correct-radio-label"><input type="radio" name="correctRadio" value="2"> सहि (Correct)</label>
+                    </div>
+                    <div class="single-option-row">
+                        <input type="text" id="adminOpt4" placeholder="चौथो अप्सन">
+                        <label class="correct-radio-label"><input type="radio" name="correctRadio" value="3"> सहि (Correct)</label>
+                    </div>
+                </div>
+
+                <div id="bulkSection" class="section-box">
+                    <div class="form-group">
+                        <label>एकैचोटि प्रश्नहरू तल लगातार पेस्ट गर्नुहोस् (Bulk Text):</label>
+                        <textarea id="bulkTextArea" rows="10" placeholder="लाइन खाली नछोडी लगातार प्रश्न र अप्सनहरू पेस्ट गर्नुहोस्..."></textarea>
+                        <div class="hint-text">
+                            <b>📝 फर्म्याट नियम:</b> बीचमा लाइन खाली नछोडी लेख्नुहोस्। सहि उत्तरको अगाडि <b>✔</b> वा <b>✅</b> दिनुहोला।
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- समाचार (News) सेक्सन -->
+            <div id="newsSectionContainer" class="section-box">
+                <div class="form-group">
+                    <label>समाचारको शिर्षक (News Title):</label>
+                    <input type="text" id="newsTitle" placeholder="समाचारको मुख्य शिर्षक लेख्नुहोस्...">
+                </div>
+                <div class="form-group">
+                    <label>थम्बनेल फोटो (गेलेरीबाट छान्नुहोस्):</label>
+                    <input type="file" id="newsImageFile" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>मिति (Date):</label>
+                    <input type="text" id="newsDate" placeholder="तاريخ वा मिति (जस्तै: २०८२ साल असोज ५)">
+                </div>
+                <div class="form-group">
+                    <label>समाचारको विस्तृत विवरण (Description):</label>
+                    <textarea id="newsDesc" rows="8" placeholder="समाचारको पूरा विवरण यहाँ लेख्नुहोस्..."></textarea>
+                </div>
+            </div>
+
+            <!-- भ्याकेन्सी (Vacancy) सेक्सन -->
+            <div id="vacancySectionContainer" class="section-box">
+                <div class="form-group">
+                    <label>जागिरको शिर्षक (Vacancy Title):</label>
+                    <input type="text" id="vacancyTitle" placeholder="पदको नाम वा विज्ञापन शिर्षक...">
+                </div>
+                <div class="form-group">
+                    <label>ब्यानर/थम्बनेल फोटो (गेलेरीबाट छान्नुहोस्):</label>
+                    <input type="file" id="vacancyImageFile" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>फारम भर्ने वा प्रकाशन मिति (Date):</label>
+                    <input type="text" id="vacancyDate" placeholder="अन्तिम मिति (जस्तै: २०८२/०५/१५ सम्म)">
+                </div>
+                <div class="form-group">
+                    <label>विस्तृत विवरण (Job Description):</label>
+                    <textarea id="vacancyDesc" rows="8" placeholder="योग्यता, पदसंख्या तथा अन्य विवरणहरू यहाँ लेख्नुहोस्..."></textarea>
                 </div>
             </div>
             
@@ -293,11 +345,11 @@
     </div>
 
     <div class="manage-container">
-        <h3>🗑️ प्रश्न व्यवस्थापन तथा डिलीट गर्ने सेक्सन</h3>
+        <h3 id="manageTitle">🗑️ प्रश्न व्यवस्थापन तथा डिलीट सेक्सन</h3>
         
-        <div class="form-group" style="margin-top: 15px;">
+        <div id="quizFilterGroup" class="form-group" style="margin-top: 15px;">
             <label for="filterSetSelect">कुन सेटका प्रश्नहरू हेर्ने?</label>
-            <select id="filterSetSelect" onchange="loadManageQuestions()">
+            <select id="filterSetSelect" onchange="loadManageData()">
                 <option value="ALL">सबै सेटहरू</option>
             </select>
         </div>
@@ -306,7 +358,7 @@
             <p style="text-align: center; color: #94a3b8; font-size: 13px;">लोड हुँदैछ...</p>
         </div>
 
-        <button type="button" class="delete-all-btn" onclick="deleteAllQuestionsInCurrentSelection()">⚠️ यो छनौट भएका प्रश्नहरू मेटाउनुहोस्</button>
+        <button type="button" class="delete-all-btn" onclick="deleteAllCurrentSelection()">⚠️ यो सूची भएका सम्पूर्ण डेटा मेटाउनुहोस्</button>
     </div>
 
     <script type="module">
@@ -325,11 +377,55 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let currentUploadMode = 'single';
+        let activeMainTab = 'quiz'; // quiz, news, vacancy
+        let currentUploadMode = 'single'; // single, bulk
         let activeTargetSet = "Set 1";
         let activeSetCount = 0;
 
-        window.switchMode = function(mode) {
+        // फाइललाई Base64 मा रूपान्तरण गर्ने फंक्सन
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        window.switchMainTab = function(tab) {
+            activeMainTab = tab;
+            document.getElementById('quizSectionContainer').classList.remove('active');
+            document.getElementById('newsSectionContainer').classList.remove('active');
+            document.getElementById('vacancySectionContainer').classList.remove('active');
+            
+            document.getElementById('mainTabQuiz').classList.remove('active');
+            document.getElementById('mainTabNews').classList.remove('active');
+            document.getElementById('mainTabVacancy').classList.remove('active');
+
+            let filterGroup = document.getElementById('quizFilterGroup');
+
+            if (tab === 'quiz') {
+                document.getElementById('quizSectionContainer').classList.add('active');
+                document.getElementById('mainTabQuiz').classList.add('active');
+                filterGroup.style.display = 'block';
+                document.getElementById('manageTitle').textContent = '🗑️ क्विज प्रश्न व्यवस्थापन सेक्सन';
+                updateAutoSetAndList();
+            } else if (tab === 'news') {
+                document.getElementById('newsSectionContainer').classList.add('active');
+                document.getElementById('mainTabNews').classList.add('active');
+                filterGroup.style.display = 'none';
+                document.getElementById('manageTitle').textContent = '🗑️ समाचार व्यवस्थापन तथा डिलीट सेक्सन';
+                loadManageData();
+            } else if (tab === 'vacancy') {
+                document.getElementById('vacancySectionContainer').classList.add('active');
+                document.getElementById('mainTabVacancy').classList.add('active');
+                filterGroup.style.display = 'none';
+                document.getElementById('manageTitle').textContent = '🗑️ भ्याकेन्सी व्यवस्थापन तथा डिलीट सेक्सन';
+                loadManageData();
+            }
+        }
+
+        window.switchQuizMode = function(mode) {
             currentUploadMode = mode;
             let singleSec = document.getElementById('singleSection');
             let bulkSec = document.getElementById('bulkSection');
@@ -349,8 +445,8 @@
             }
         }
 
-        // क्याटेगोरी र मोड अनुसार कुन सेटमा ५० वटा पुगेको छ वा छैन चेक गरी सही सेट निर्धारण गर्ने
         window.updateAutoSetAndList = async function() {
+            if (activeMainTab !== 'quiz') return;
             let cat = document.getElementById('adminCategory').value;
             let qMode = document.getElementById('quizTypeTarget').value;
 
@@ -392,11 +488,8 @@
                     }
                 }
 
-                // UI मा ब्याज अपडेट गर्ने
-                document.getElementById('autoTestBadgeDisplay') || null; // safe check
                 document.getElementById('autoSetDisplay').innerHTML = `📌 हालको अपलोडिने सेट: <b>${activeTargetSet}</b> (यसमा ${activeSetCount}/50 प्रश्न छन्)`;
 
-                // फिल्टर ड्रपडाउन अपडेट गर्ने
                 let filterSelect = document.getElementById('filterSetSelect');
                 let currentSelectedFilter = filterSelect.value;
                 filterSelect.innerHTML = '<option value="ALL">सबै सेटहरू</option>';
@@ -412,148 +505,174 @@
                     filterSelect.value = currentSelectedFilter;
                 }
 
-                loadManageQuestions();
+                loadManageData();
             } catch (error) {
-                console.error("Auto Set Calculation Error: ", error);
+                console.error("Auto Set Error: ", error);
             }
         }
 
-        window.handleQuestionUpload = async function(e) {
+        window.handleContentUpload = async function(e) {
             e.preventDefault();
-            
-            let cat = document.getElementById('adminCategory').value;
-            let qMode = document.getElementById('quizTypeTarget').value;
 
             try {
-                if (currentUploadMode === 'single') {
-                    // यदि हालको सेटमा ५० पुगेको छ भने स्वतः अर्को सेट बनाउने
-                    if (activeSetCount >= 50) {
-                        let currentNum = parseInt(activeTargetSet.replace(/\D/g, '')) || 1;
-                        activeTargetSet = `Set ${currentNum + 1}`;
-                        activeSetCount = 0;
-                    }
+                if (activeMainTab === 'quiz') {
+                    let cat = document.getElementById('adminCategory').value;
+                    let qMode = document.getElementById('quizTypeTarget').value;
 
-                    let q = document.getElementById('adminQuestion').value;
-                    let o1 = document.getElementById('adminOpt1').value;
-                    let o2 = document.getElementById('adminOpt2').value;
-                    let o3 = document.getElementById('adminOpt3').value;
-                    let o4 = document.getElementById('adminOpt4').value;
-                    let optionsArr = [o1, o2, o3, o4];
-
-                    let radios = document.getElementsByName('correctRadio');
-                    let correctIndex = 0;
-                    for (let i = 0; i < radios.length; i++) {
-                        if (radios[i].checked) {
-                            correctIndex = parseInt(radios[i].value);
-                            break;
+                    if (currentUploadMode === 'single') {
+                        if (activeSetCount >= 50) {
+                            let currentNum = parseInt(activeTargetSet.replace(/\D/g, '')) || 1;
+                            activeTargetSet = `Set ${currentNum + 1}`;
+                            activeSetCount = 0;
                         }
-                    }
 
-                    let correctAnsText = optionsArr[correctIndex];
+                        let q = document.getElementById('adminQuestion').value;
+                        let optionsArr = [
+                            document.getElementById('adminOpt1').value,
+                            document.getElementById('adminOpt2').value,
+                            document.getElementById('adminOpt3').value,
+                            document.getElementById('adminOpt4').value
+                        ];
 
-                    await addDoc(collection(db, "questions"), {
-                        category: cat,
-                        mode: qMode,
-                        setName: activeTargetSet,
-                        question: q,
-                        options: optionsArr,
-                        correctAnswer: correctAnsText,
-                        createdAt: new Date()
-                    });
+                        let radios = document.getElementsByName('correctRadio');
+                        let correctIndex = 0;
+                        for (let i = 0; i < radios.length; i++) {
+                            if (radios[i].checked) { correctIndex = parseInt(radios[i].value); break; }
+                        }
 
-                    document.getElementById('adminQuestion').value = '';
-                    document.getElementById('adminOpt1').value = '';
-                    document.getElementById('adminOpt2').value = '';
-                    document.getElementById('adminOpt3').value = '';
-                    document.getElementById('adminOpt4').value = '';
+                        await addDoc(collection(db, "questions"), {
+                            category: cat,
+                            mode: qMode,
+                            setName: activeTargetSet,
+                            question: q,
+                            options: optionsArr,
+                            correctAnswer: optionsArr[correctIndex],
+                            createdAt: new Date()
+                        });
 
-                } else {
-                    let bulkText = document.getElementById('bulkTextArea').value;
-                    let lines = bulkText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                    let addedCount = 0;
+                        document.getElementById('adminQuestion').value = '';
+                        document.getElementById('adminOpt1').value = '';
+                        document.getElementById('adminOpt2').value = '';
+                        document.getElementById('adminOpt3').value = '';
+                        document.getElementById('adminOpt4').value = '';
+                    } else {
+                        let bulkText = document.getElementById('bulkTextArea').value;
+                        let lines = bulkText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                        let addedCount = 0;
 
-                    for (let i = 0; i < lines.length; i += 5) {
-                        if (i + 4 < lines.length) {
-                            // यदि हालको सेटमा ५० पुग्यो भने नयाँ सेटमा स्विच गर्ने
-                            if (activeSetCount >= 50) {
-                                let currentNum = parseInt(activeTargetSet.replace(/\D/g, '')) || 1;
-                                activeTargetSet = `Set ${currentNum + 1}`;
-                                activeSetCount = 0;
-                            }
-
-                            let qText = lines[i].replace(/^(प्रश्न:|Q[\.\:]?)\s*/i, '');
-                            let rawOptions = [lines[i+1], lines[i+2], lines[i+3], lines[i+4]];
-                            let cleanOptions = [];
-                            let detectedCorrectAnswer = "";
-
-                            rawOptions.forEach(optLine => {
-                                let isCorrectMarked = /^[✔✅\*]/i.test(optLine);
-                                let cleaned = optLine.replace(/^[✔✅\*]\s*/, '')
-                                                     .replace(/^[A-Da-d][\.\)]\s*/, '').trim();
-
-                                if (isCorrectMarked) {
-                                    detectedCorrectAnswer = cleaned;
+                        for (let i = 0; i < lines.length; i += 5) {
+                            if (i + 4 < lines.length) {
+                                if (activeSetCount >= 50) {
+                                    let currentNum = parseInt(activeTargetSet.replace(/\D/g, '')) || 1;
+                                    activeTargetSet = `Set ${currentNum + 1}`;
+                                    activeSetCount = 0;
                                 }
-                                cleanOptions.push(cleaned);
-                            });
 
-                            if (!detectedCorrectAnswer && cleanOptions.length > 0) {
-                                detectedCorrectAnswer = cleanOptions[0];
+                                let qText = lines[i].replace(/^(प्रश्न:|Q[\.\:]?)\s*/i, '');
+                                let rawOptions = [lines[i+1], lines[i+2], lines[i+3], lines[i+4]];
+                                let cleanOptions = [];
+                                let detectedCorrectAnswer = "";
+
+                                rawOptions.forEach(optLine => {
+                                    let isCorrectMarked = /^[✔✅\*]/i.test(optLine);
+                                    let cleaned = optLine.replace(/^[✔✅\*]\s*/, '').replace(/^[A-Da-d][\.\)]\s*/, '').trim();
+                                    if (isCorrectMarked) detectedCorrectAnswer = cleaned;
+                                    cleanOptions.push(cleaned);
+                                });
+
+                                if (!detectedCorrectAnswer && cleanOptions.length > 0) detectedCorrectAnswer = cleanOptions[0];
+
+                                await addDoc(collection(db, "questions"), {
+                                    category: cat,
+                                    mode: qMode,
+                                    setName: activeTargetSet,
+                                    question: qText,
+                                    options: cleanOptions,
+                                    correctAnswer: detectedCorrectAnswer,
+                                    createdAt: new Date()
+                                });
+
+                                addedCount++;
+                                activeSetCount++;
                             }
-
-                            await addDoc(collection(db, "questions"), {
-                                category: cat,
-                                mode: qMode,
-                                setName: activeTargetSet,
-                                question: qText,
-                                options: cleanOptions,
-                                correctAnswer: detectedCorrectAnswer,
-                                createdAt: new Date()
-                            });
-
-                            addedCount++;
-                            activeSetCount++;
                         }
+                        if (addedCount === 0) { alert('⚠️ सही फर्म्याटमा डेटा राख्नुहोस्!'); return; }
+                        document.getElementById('bulkTextArea').value = '';
+                    }
+                    updateAutoSetAndList();
+
+                } else if (activeMainTab === 'news') {
+                    let title = document.getElementById('newsTitle').value;
+                    let date = document.getElementById('newsDate').value;
+                    let description = document.getElementById('newsDesc').value;
+                    
+                    let imageFile = document.getElementById('newsImageFile').files[0];
+                    let imageUrl = "";
+                    if (imageFile) {
+                        imageUrl = await getBase64(imageFile);
                     }
 
-                    if (addedCount === 0) {
-                        alert('⚠️ कृपया सही फर्म्याटमा डेटा राख्नुहोस्!');
-                        return;
+                    await addDoc(collection(db, "news"), { title, imageUrl, date, description, createdAt: new Date() });
+                    document.getElementById('newsTitle').value = '';
+                    document.getElementById('newsImageFile').value = '';
+                    document.getElementById('newsDate').value = '';
+                    document.getElementById('newsDesc').value = '';
+                    loadManageData();
+
+                } else if (activeMainTab === 'vacancy') {
+                    let title = document.getElementById('vacancyTitle').value;
+                    let date = document.getElementById('vacancyDate').value;
+                    let description = document.getElementById('vacancyDesc').value;
+                    
+                    let imageFile = document.getElementById('vacancyImageFile').files[0];
+                    let imageUrl = "";
+                    if (imageFile) {
+                        imageUrl = await getBase64(imageFile);
                     }
-                    document.getElementById('bulkTextArea').value = '';
+
+                    await addDoc(collection(db, "vacancies"), { title, imageUrl, date, description, createdAt: new Date() });
+                    document.getElementById('vacancyTitle').value = '';
+                    document.getElementById('vacancyImageFile').value = '';
+                    document.getElementById('vacancyDate').value = '';
+                    document.getElementById('vacancyDesc').value = '';
+                    loadManageData();
                 }
 
                 let successMsg = document.getElementById('successMsg');
                 successMsg.style.display = 'block';
                 setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
 
-                updateAutoSetAndList();
             } catch (error) {
                 console.error("Upload Error: ", error);
                 alert("अपलोड गर्दा त्रुटि भयो!");
             }
         }
 
-        window.loadManageQuestions = async function() {
-            let cat = document.getElementById('adminCategory').value;
-            let qMode = document.getElementById('quizTypeTarget').value;
-            let selectedSetFilter = document.getElementById('filterSetSelect').value;
+        window.loadManageData = async function() {
             let container = document.getElementById('questionListContainer');
             container.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 13px;">लोड हुँदैछ...</p>';
 
             try {
-                let qRef;
-                if (!selectedSetFilter || selectedSetFilter === 'ALL') {
-                    qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode));
-                } else {
-                    qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode), where("setName", "==", selectedSetFilter));
+                let querySnapshot;
+                if (activeMainTab === 'quiz') {
+                    let cat = document.getElementById('adminCategory').value;
+                    let qMode = document.getElementById('quizTypeTarget').value;
+                    let selectedSet = document.getElementById('filterSetSelect').value;
+
+                    let qRef = (!selectedSet || selectedSet === 'ALL') 
+                        ? query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode))
+                        : query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode), where("setName", "==", selectedSet));
+                    querySnapshot = await getDocs(qRef);
+
+                } else if (activeMainTab === 'news') {
+                    querySnapshot = await getDocs(collection(db, "news"));
+                } else if (activeMainTab === 'vacancy') {
+                    querySnapshot = await getDocs(collection(db, "vacancies"));
                 }
 
-                const querySnapshot = await getDocs(qRef);
-                
                 container.innerHTML = '';
                 if (querySnapshot.empty) {
-                    container.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 13px;">यस सेक्सनमा कुनै पनि प्रश्नहरू छैनन्।</p>';
+                    container.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 13px;">कुनै पनि डेटा उपलब्ध छैन।</p>';
                     return;
                 }
 
@@ -562,13 +681,14 @@
                     index++;
                     let item = docSnap.data();
                     let docId = docSnap.id;
-                    let displaySet = item.setName || 'Set 1';
+                    let titleText = item.question || item.title || 'शीर्षक नभएको';
+                    let metaInfo = (activeMainTab === 'quiz') ? `[${item.setName || 'Set 1'}] ` : `[${item.date || 'मिति छैन'}] `;
 
                     let div = document.createElement('div');
                     div.className = 'question-item';
                     div.innerHTML = `
-                        <div class="question-info"><b>${index}. [${displaySet}]</b> ${item.question} <br><small style="color: #16a34a;">सहि उत्तर: ${item.correctAnswer}</small></div>
-                        <button class="delete-btn" onclick="deleteSingleQuestion('${docId}')">❌ डिलीट</button>
+                        <div class="question-info"><b>${index}. ${metaInfo}</b> ${titleText}</div>
+                        <button class="delete-btn" onclick="deleteSingleItem('${docId}')">❌ डिलीट</button>
                     `;
                     container.appendChild(div);
                 });
@@ -578,43 +698,47 @@
             }
         }
 
-        window.deleteSingleQuestion = async function(docId) {
-            if (confirm('के तपाईं यो प्रश्न मेटाउन चाहनुहुन्छ?')) {
+        window.deleteSingleItem = async function(docId) {
+            if (confirm('के तपाईं यो आइटम मेटाउन चाहनुहुन्छ?')) {
                 try {
-                    await deleteDoc(doc(db, "questions", docId));
-                    updateAutoSetAndList();
+                    let colName = (activeMainTab === 'quiz') ? 'questions' : (activeMainTab === 'news' ? 'news' : 'vacancies');
+                    await deleteDoc(doc(db, colName, docId));
+                    if (activeMainTab === 'quiz') updateAutoSetAndList();
+                    else loadManageData();
                 } catch (error) {
                     console.error("Delete Error: ", error);
                 }
             }
         }
 
-        window.deleteAllQuestionsInCurrentSelection = async function() {
-            let cat = document.getElementById('adminCategory').value;
-            let qMode = document.getElementById('quizTypeTarget').value;
-            let selectedSetFilter = document.getElementById('filterSetSelect').value;
-
-            let confirmText = (selectedSetFilter === 'ALL') 
-                ? `⚠️ के तपाईं ${cat} का सम्पूर्ण सेटहरूका प्रश्नहरू स्थायी रूपमा मेटाउन चाहनुहुन्छ?` 
-                : `⚠️ के तपाईं ${cat} को ${selectedSetFilter} का सबै प्रश्नहरू मेटाउन चाहनुहुन्छ?`;
-
-            if (confirm(confirmText)) {
+        window.deleteAllCurrentSelection = async function() {
+            if (confirm('⚠️ के तपाईं यो सूचीमा भएका सम्पूर्ण डेटा स्थायी रूपमा मेटाउन चाहनुहुन्छ?')) {
                 try {
-                    let qRef;
-                    if (selectedSetFilter === 'ALL') {
-                        qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode));
+                    let querySnapshot;
+                    let colName = '';
+
+                    if (activeMainTab === 'quiz') {
+                        colName = 'questions';
+                        let cat = document.getElementById('adminCategory').value;
+                        let qMode = document.getElementById('quizTypeTarget').value;
+                        let selectedSet = document.getElementById('filterSetSelect').value;
+                        let qRef = (selectedSet === 'ALL') 
+                            ? query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode))
+                            : query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode), where("setName", "==", selectedSet));
+                        querySnapshot = await getDocs(qRef);
                     } else {
-                        qRef = query(collection(db, "questions"), where("category", "==", cat), where("mode", "==", qMode), where("setName", "==", selectedSetFilter));
+                        colName = (activeMainTab === 'news') ? 'news' : 'vacancies';
+                        querySnapshot = await getDocs(collection(db, colName));
                     }
 
-                    const querySnapshot = await getDocs(qRef);
                     let deletePromises = [];
                     querySnapshot.forEach((docSnap) => {
-                        deletePromises.push(deleteDoc(doc(db, "questions", docSnap.id)));
+                        deletePromises.push(deleteDoc(doc(db, colName, docSnap.id)));
                     });
 
                     await Promise.all(deletePromises);
-                    updateAutoSetAndList();
+                    if (activeMainTab === 'quiz') updateAutoSetAndList();
+                    else loadManageData();
                     alert("सफलतापूर्वक मेटाइए!");
                 } catch (error) {
                     console.error("Delete All Error: ", error);
