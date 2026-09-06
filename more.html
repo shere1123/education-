@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>थप सामग्रीहरू (Full Screen View)</title>
+    <title>थप सामग्रीहरू (More Content)</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
     <style>
@@ -203,11 +203,11 @@
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
 
-        /* दायाँ साइडमा खुल्ने पप-अप मेनु */
+        /* दायाँ साइडमा खुल्ने पप-अप मेनु (bottom बढाएर माथि सारिएको) */
         #popupMenu {
-            display: none;
+            display: flex;
             position: fixed;
-            bottom: 90px;
+            bottom: 105px; /* यहाँबाट पप-अप मेनुको उचाइ माथि सारिएको छ */
             right: 20px;
             width: 280px;
             background: #1e293b;
@@ -246,6 +246,7 @@
             border-radius: 50%; color: #ffffff;
         }
 
+        /* Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 20px;
@@ -255,23 +256,40 @@
             max-width: 450px;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 50px;
             display: flex;
             justify-content: space-around;
             align-items: center;
             padding: 10px 12px;
-            box-shadow:0 15px 35px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
             z-index: 900;
         }
         .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            text-decoration: none; color: #94a3b8; font-size: 11px; font-weight: 600;
-            padding: 8px 12px; border-radius: 30px; gap: 4px; cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            gap: 4px;
+            cursor: pointer;
         }
+        .nav-item i { font-size: 16px; transition: transform 0.3s ease; }
         .nav-item.active {
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-            color: #ffffff; padding: 10px 16px;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 30px;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
         }
+        .nav-item.active i { color: #ffffff; transform: scale(1.1); }
+        .nav-item:hover { color: #f8fafc; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -279,18 +297,16 @@
 
     <header>
         <h1 id="pageTitle">थप सामग्रीहरू</h1>
-        <p id="pageSubtitle">More बटन थिचेर सामग्री छान्नुहोस्</p>
+        <p id="pageSubtitle">क्याटेगोरी छान्नुहोस्</p>
     </header>
 
     <div class="container">
         <div id="contentGrid" class="content-grid">
             <div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">
-                कृपया तलको 'More' बटन थिच्नुहोस् र क्याटेगोरी छान्नुहोस्।
             </div>
         </div>
     </div>
 
-    <!-- फुलस्क्रिन मोडल -->
     <div id="fullScreenModal">
         <div class="modal-inner">
             <div>
@@ -300,7 +316,6 @@
         </div>
     </div>
 
-    <!-- दायाँ साइडमा खुल्ने पप-अप मेनु -->
     <div id="popupMenu">
         <div class="popup-item item-story" onclick="loadCategoryData('stories', 'YouTube कथाहरू')">
             <i class="fa-solid fa-book-open-reader"></i>
@@ -320,7 +335,6 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
         <a href="index.html" class="nav-item">
             <i class="fa-solid fa-house"></i>
@@ -334,7 +348,7 @@
             <i class="fa-solid fa-bell"></i>
             <span>News</span>
         </a>
-        <a class="nav-item active" onclick="togglePopupMenu(event)">
+        <a href="#" id="moreNavBtn" class="nav-item active" onclick="togglePopupMenu(event)">
             <i class="fa-solid fa-bars"></i>
             <span>More</span>
         </a>
@@ -362,29 +376,39 @@
 
         let currentCategoryKey = '';
         let currentItems = [];
-        let unsubscribe = null; // पुरानो listener हटाउनको लागि
+        let unsubscribe = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const popup = document.getElementById('popupMenu');
+            if (popup) {
+                popup.style.display = 'flex';
+            }
+        });
 
         window.togglePopupMenu = function(event) {
             event.preventDefault();
+            event.stopPropagation();
             const popup = document.getElementById('popupMenu');
-            popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
+            if (popup) {
+                popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
+            }
         }
 
         window.loadCategoryData = function(categoryKey, titleText) {
             currentCategoryKey = categoryKey;
-            document.getElementById('popupMenu').style.display = 'none';
+            const popup = document.getElementById('popupMenu');
+            if(popup) popup.style.display = 'none'; 
+            
             document.getElementById('pageTitle').innerText = titleText;
             document.getElementById('pageSubtitle').innerText = 'रियल-टाइम (Real-time) लोड हुँदैछ...';
             
             const grid = document.getElementById('contentGrid');
             grid.innerHTML = `<div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">डाटा लोड हुँदैछ...</div>`;
 
-            // यदि अघिल्लो क्याटेगोरीको listener चलिरहेको छ भने त्यसलाई बन्द गर्ने
             if (unsubscribe) {
                 unsubscribe();
             }
 
-            // Firebase को कुन कलेक्सनबाट डाटा तान्ने (जस्तै: stories, shayari, motivation, history)
             try {
                 unsubscribe = onSnapshot(collection(db, categoryKey), (querySnapshot) => {
                     currentItems = [];
@@ -466,9 +490,11 @@
 
         window.addEventListener('click', function(e) {
             const popup = document.getElementById('popupMenu');
-            const moreBtn = document.querySelector('.nav-item.active');
-            if (!popup.contains(e.target) && !moreBtn.contains(e.target)) {
-                popup.style.display = 'none';
+            const moreBtn = document.getElementById('moreNavBtn');
+            if (popup && moreBtn) {
+                if (!popup.contains(e.target) && !moreBtn.contains(e.target)) {
+                    popup.style.display = 'none';
+                }
             }
         });
     </script>
