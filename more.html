@@ -190,6 +190,22 @@
             border-radius: 14px;
             border: 1px solid rgba(255,255,255,0.08);
         }
+
+        /* विज्ञापन (Banner Ads) राख्ने ठाउँको स्टाइल (माथि देखाउनको लागि) */
+        .banner-ad-container {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .close-modal-btn {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
@@ -203,11 +219,11 @@
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
 
-        /* दायाँ साइडमा खुल्ने पप-अप मेनु (bottom बढाएर माथि सारिएको) */
+        /* पप-अप मेनु */
         #popupMenu {
             display: flex;
             position: fixed;
-            bottom: 105px; /* यहाँबाट पप-अप मेनुको उचाइ माथि सारिएको छ */
+            bottom: 105px;
             right: 20px;
             width: 280px;
             background: #1e293b;
@@ -297,7 +313,7 @@
 
     <header>
         <h1 id="pageTitle">थप सामग्रीहरू</h1>
-        <p id="pageSubtitle">क्याटेगोरी छान्नुहोस्</p>
+        <p id="pageSubtitle">कृपया क्याटेगोरी छान्नुहोस्</p>
     </header>
 
     <div class="container">
@@ -316,20 +332,21 @@
         </div>
     </div>
 
+    <!-- Firebase कलेक्सनका सहि नामहरूसँग मिलाइएको पप-अप मेनु -->
     <div id="popupMenu">
         <div class="popup-item item-story" onclick="loadCategoryData('stories', 'YouTube कथाहरू')">
             <i class="fa-solid fa-book-open-reader"></i>
             <span>YouTube कथा</span>
         </div>
-        <div class="popup-item item-shayari" onclick="loadCategoryData('shayari', 'माया तथा जीवन सायरी')">
+        <div class="popup-item item-shayari" onclick="loadCategoryData('shayaris', 'माया तथा जीवन सायरी')">
             <i class="fa-solid fa-heart-pulse"></i>
             <span>सायरी (Shayari)</span>
         </div>
-        <div class="popup-item item-motivation" onclick="loadCategoryData('motivation', 'प्रेरणादायी भनाइहरू')">
+        <div class="popup-item item-motivation" onclick="loadCategoryData('motivations', 'प्रेरणादायी भनाइहरू')">
             <i class="fa-solid fa-bolt"></i>
             <span>मोटिभेसनल लाइन</span>
         </div>
-        <div class="popup-item item-history" onclick="loadCategoryData('history', 'ऐतिहासिक तथ्यहरू')">
+        <div class="popup-item item-history" onclick="loadCategoryData('questions', 'ऐतिहासिक तथ्यहरू')">
             <i class="fa-solid fa-landmark"></i>
             <span>इतिहास (History)</span>
         </div>
@@ -394,13 +411,24 @@
             }
         }
 
+        // युट्युब लिङ्क वा ID बाट सही ११ अक्षरको ID मात्र झिक्ने फंक्सन
+        function getCleanYouTubeId(input) {
+            if (!input) return '';
+            if (input.length === 11 && !input.includes('/') && !input.includes('.')) {
+                return input;
+            }
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = input.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : input;
+        }
+
         window.loadCategoryData = function(categoryKey, titleText) {
             currentCategoryKey = categoryKey;
             const popup = document.getElementById('popupMenu');
             if(popup) popup.style.display = 'none'; 
             
             document.getElementById('pageTitle').innerText = titleText;
-            document.getElementById('pageSubtitle').innerText = 'रियल-टाइम (Real-time) लोड हुँदैछ...';
+            document.getElementById('pageSubtitle').innerText = 'रियल-टाइम लोड हुँदैछ...';
             
             const grid = document.getElementById('contentGrid');
             grid.innerHTML = `<div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">डाटा लोड हुँदैछ...</div>`;
@@ -423,9 +451,21 @@
                     }
 
                     let html = '';
+                    currentItems.forecast = []; // placeholder check
                     currentItems.forEach((item, index) => {
-                        let overlayIcon = (item.type === 'video') ? `<div class="play-icon-overlay"><i class="fa-solid fa-play"></i></div>` : '';
-                        let displayImg = item.imageUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800';
+                        let rawVidInput = item.videoId || item.videoLink || '';
+                        let cleanId = getCleanYouTubeId(rawVidInput);
+                        let isVideoItem = (item.type === 'video' || cleanId.length === 11);
+
+                        let overlayIcon = isVideoItem ? `<div class="play-icon-overlay"><i class="fa-solid fa-play"></i></div>` : '';
+                        
+                        let displayImg = item.imageUrl;
+                        if (!displayImg && isVideoItem && cleanId.length === 11) {
+                            displayImg = `https://img.youtube.com/vi/${cleanId}/hqdefault.jpg`;
+                        }
+                        if (!displayImg) {
+                            displayImg = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800';
+                        }
                         
                         html += `
                             <div class="content-card" onclick="openDetail(${index})">
@@ -455,14 +495,27 @@
             let item = currentItems[index];
             if (!item) return;
 
+            let rawVidInput = item.videoId || item.videoLink || '';
+            let cleanVideoId = getCleanYouTubeId(rawVidInput);
+            let isVideoItem = (item.type === 'video' || cleanVideoId.length === 11);
+
             let contentHTML = '';
 
-            if (item.type === 'video') {
+            // विज्ञापन राख्ने ठाउँ (Banner Ad Container) अब माथि राखिएको छ
+            let adBannerHTML = `
+                <div class="banner-ad-container">
+                    <!-- यहाँ तपाईं आफ्नो Google AdSense वा जुनसुकै Banner Ad को Script/Code राख्न सक्नुहुन्छ -->
+                    <span style="font-size: 13px; color: #94a3b8;">[ Top Banner Ad Here ]</span>
+                </div>
+            `;
+
+            if (isVideoItem && cleanVideoId.length === 11) {
                 contentHTML = `
                     <div class="modal-date"><i class="fa-regular fa-calendar"></i> ${item.date || ''}</div>
                     <div class="modal-header-title">${item.title}</div>
+                    ${adBannerHTML}
                     <div class="video-container">
-                        <iframe src="https://www.youtube.com/embed/${item.videoId}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <iframe src="https://www.youtube.com/embed/${cleanVideoId}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                     <div class="modal-description">${item.description || ''}</div>
                 `;
@@ -472,6 +525,7 @@
                 contentHTML = `
                     <div class="modal-date"><i class="fa-regular fa-calendar"></i> ${item.date || ''}</div>
                     <div class="modal-header-title">${item.title}</div>
+                    ${adBannerHTML}
                     ${imgBlock}
                     <div class="modal-description">${item.description || ''}</div>
                 `;
