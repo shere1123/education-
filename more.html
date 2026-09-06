@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>थप सामग्रीहरू (Full Screen View)</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            --bg-color: #0b0f19;
+            --text-main: #ffffff;
+            --text-sub: #94a3b8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0; padding: 0 0 90px 0;
+            overflow-x: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white; text-align: center;
+            padding: 25px 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        header p { margin: 6px 0 0 0; font-size: 13px; opacity: 0.8; }
+
+        .container { width: 100%; max-width: 800px; margin: 20px auto; padding: 0 15px; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media(min-width: 600px) {
+            .content-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .content-card {
+            background: #1e293b;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .content-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .thumbnail-box {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #0f172a;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thumbnail-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .play-icon-overlay {
+            position: absolute;
+            width: 45px; height: 45px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff0000;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .card-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1.4;
+        }
+        .card-date {
+            font-size: 12px;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        /* फुलस्क्रिन मोडल */
+        #fullScreenModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0;
+            width: 100vw; height: 100vh;
+            background-color: #07090f;
+            overflow-y: auto;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .modal-inner {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 10px 0 40px 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            justify-content: space-between;
+        }
+        .modal-header-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .modal-date {
+            font-size: 14px;
+            color: #38bdf8;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        .modal-image-container {
+            width: 100%;
+            max-height: 60vh;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-image-container img {
+            width: 100%;
+            height: auto;
+            max-height: 60vh;
+            object-fit: contain;
+            display: block;
+        }
+        .modal-description {
+            font-size: 17px;
+            color: #f1f5f9;
+            line-height: 1.8;
+            font-weight: 500;
+            white-space: pre-line;
+            margin-bottom: 25px;
+            background: rgba(30, 41, 59, 0.5);
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .close-modal-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* दायाँ साइडमा खुल्ने पप-अप मेनु */
+        #popupMenu {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 280px;
+            background: #1e293b;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            padding: 12px;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .popup-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .popup-item:active { transform: scale(0.97); }
+        .item-story { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .item-shayari { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
+        .item-motivation { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .item-history { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+
+        .popup-item i {
+            font-size: 16px; width: 26px; height: 26px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; color: #ffffff;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 450px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 12px;
+            box-shadow:0 15px 35px rgba(0, 0, 0, 0.4);
+            z-index: 900;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: #94a3b8; font-size: 11px; font-weight: 600;
+            padding: 8px 12px; border-radius: 30px; gap: 4px; cursor: pointer;
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            color: #ffffff; padding: 10px 16px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <h1 id="pageTitle">थप सामग्रीहरू</h1>
+        <p id="pageSubtitle">More बटन थिचेर सामग्री छान्नुहोस्</p>
+    </header>
+
+    <div class="container">
+        <div id="contentGrid" class="content-grid">
+            <div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">
+                कृपया तलको 'More' बटन थिच्नुहोस् र क्याटेगोरी छान्नुहोस्।
+            </div>
+        </div>
+    </div>
+
+    <!-- फुलस्क्रिन मोडल -->
+    <div id="fullScreenModal">
+        <div class="modal-inner">
+            <div>
+                <div id="modalContentArea"></div>
+            </div>
+            <button class="close-modal-btn" onclick="closeFullModal()">बन्द गर्नुहोस् (Close)</button>
+        </div>
+    </div>
+
+    <!-- दायाँ साइडमा खुल्ने पप-अप मेनु -->
+    <div id="popupMenu">
+        <div class="popup-item item-story" onclick="loadCategoryData('stories', 'YouTube कथाहरू')">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <span>YouTube कथा</span>
+        </div>
+        <div class="popup-item item-shayari" onclick="loadCategoryData('shayari', 'माया तथा जीवन सायरी')">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <span>सायरी (Shayari)</span>
+        </div>
+        <div class="popup-item item-motivation" onclick="loadCategoryData('motivation', 'प्रेरणादायी भनाइहरू')">
+            <i class="fa-solid fa-bolt"></i>
+            <span>मोटिभेसनल लाइन</span>
+        </div>
+        <div class="popup-item item-history" onclick="loadCategoryData('history', 'ऐतिहासिक तथ्यहरू')">
+            <i class="fa-solid fa-landmark"></i>
+            <span>इतिहास (History)</span>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="vacancy.html" class="nav-item">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Vacancy</span>
+        </a>
+        <a href="news.html" class="nav-item">
+            <i class="fa-solid fa-bell"></i>
+            <span>News</span>
+        </a>
+        <a class="nav-item active" onclick="togglePopupMenu(event)">
+            <i class="fa-solid fa-bars"></i>
+            <span>More</span>
+        </a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAe32qMUjBMUBL4N6jS8eyVixK2gHMVuXw",
+            authDomain: "gk-nepal-df869.firebaseapp.com",
+            projectId: "gk-nepal-df869",
+            storageBucket: "gk-nepal-df869.firebasestorage.app",
+            messagingSenderId: "454233438620",
+            appId: "1:454233438620:web:a8292322e04ffcf2b23059"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        try {
+            enableIndexedDbPersistence(db).catch((err) => {});
+        } catch (e) {}
+
+        let currentCategoryKey = '';
+        let currentItems = [];
+        let unsubscribe = null; // पुरानो listener हटाउनको लागि
+
+        window.togglePopupMenu = function(event) {
+            event.preventDefault();
+            const popup = document.getElementById('popupMenu');
+            popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        window.loadCategoryData = function(categoryKey, titleText) {
+            currentCategoryKey = categoryKey;
+            document.getElementById('popupMenu').style.display = 'none';
+            document.getElementById('pageTitle').innerText = titleText;
+            document.getElementById('pageSubtitle').innerText = 'रियल-टाइम (Real-time) लोड हुँदैछ...';
+            
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = `<div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">डाटा लोड हुँदैछ...</div>`;
+
+            // यदि अघिल्लो क्याटेगोरीको listener चलिरहेको छ भने त्यसलाई बन्द गर्ने
+            if (unsubscribe) {
+                unsubscribe();
+            }
+
+            // Firebase को कुन कलेक्सनबाट डाटा तान्ने (जस्तै: stories, shayari, motivation, history)
+            try {
+                unsubscribe = onSnapshot(collection(db, categoryKey), (querySnapshot) => {
+                    currentItems = [];
+                    querySnapshot.forEach((docSnap) => {
+                        currentItems.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+
+                    if (currentItems.length === 0) {
+                        grid.innerHTML = `<div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">यस क्याटेगोरीमा हाल कुनै सामग्री उपलब्ध छैन।</div>`;
+                        document.getElementById('pageSubtitle').innerText = 'कुनै सामग्री छैन';
+                        return;
+                    }
+
+                    let html = '';
+                    currentItems.forEach((item, index) => {
+                        let overlayIcon = (item.type === 'video') ? `<div class="play-icon-overlay"><i class="fa-solid fa-play"></i></div>` : '';
+                        let displayImg = item.imageUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800';
+                        
+                        html += `
+                            <div class="content-card" onclick="openDetail(${index})">
+                                <div class="thumbnail-box">
+                                    <img src="${displayImg}" alt="Thumbnail" loading="lazy">
+                                    ${overlayIcon}
+                                </div>
+                                <div class="card-info">
+                                    <span class="card-date"><i class="fa-regular fa-calendar"></i> ${item.date || 'हालैको'}</span>
+                                    <h3 class="card-title">${item.title}</h3>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    grid.innerHTML = html;
+                    document.getElementById('pageSubtitle').innerText = 'फुलस्क्रिन अवलोकन';
+                }, (error) => {
+                    console.error("Firebase error: ", error);
+                    grid.innerHTML = `<div style="text-align: center; color: #ef4444; grid-column: span 2; padding: 40px; font-weight: bold;">डाटा लोड गर्न सकिएन। इन्टरनेट जडान चेक गर्नुहोस्।</div>`;
+                });
+            } catch (err) {
+                console.error("Error setting up snapshot: ", err);
+            }
+        }
+
+        window.openDetail = function(index) {
+            let item = currentItems[index];
+            if (!item) return;
+
+            let contentHTML = '';
+
+            if (item.type === 'video') {
+                contentHTML = `
+                    <div class="modal-date"><i class="fa-regular fa-calendar"></i> ${item.date || ''}</div>
+                    <div class="modal-header-title">${item.title}</div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/${item.videoId}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="modal-description">${item.description || ''}</div>
+                `;
+            } else {
+                let detailImg = item.imageUrl || '';
+                let imgBlock = detailImg ? `<div class="modal-image-container"><img src="${detailImg}" alt="Banner"></div>` : '';
+                contentHTML = `
+                    <div class="modal-date"><i class="fa-regular fa-calendar"></i> ${item.date || ''}</div>
+                    <div class="modal-header-title">${item.title}</div>
+                    ${imgBlock}
+                    <div class="modal-description">${item.description || ''}</div>
+                `;
+            }
+
+            document.getElementById('modalContentArea').innerHTML = contentHTML;
+            document.getElementById('fullScreenModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeFullModal = function() {
+            document.getElementById('modalContentArea').innerHTML = '';
+            document.getElementById('fullScreenModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        window.addEventListener('click', function(e) {
+            const popup = document.getElementById('popupMenu');
+            const moreBtn = document.querySelector('.nav-item.active');
+            if (!popup.contains(e.target) && !moreBtn.contains(e.target)) {
+                popup.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
