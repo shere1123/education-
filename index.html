@@ -114,7 +114,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: 92%;
-            max-width: 420px;
+            max-width: 450px;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -122,7 +122,7 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 10px 15px;
+            padding: 10px 12px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
             z-index: 999;
         }
@@ -134,20 +134,20 @@
             justify-content: center;
             text-decoration: none;
             color: #94a3b8;
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 600;
-            padding: 8px 18px;
+            padding: 8px 12px;
             border-radius: 30px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             gap: 4px;
         }
 
-        .nav-item i { font-size: 18px; transition: transform 0.3s ease; }
+        .nav-item i { font-size: 16px; transition: transform 0.3s ease; }
 
         .nav-item.active {
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
             color: #ffffff;
-            padding: 10px 22px;
+            padding: 10px 16px;
             border-radius: 30px;
             box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
         }
@@ -432,6 +432,10 @@
             <i class="fa-solid fa-bell"></i>
             <span>News</span>
         </a>
+        <a href="more.html" class="nav-item">
+            <i class="fa-solid fa-bars"></i>
+            <span>More</span>
+        </a>
     </div>
 
     <!-- Modal Structure -->
@@ -494,15 +498,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Firebase अफलाइन क्यासिङ इनेबल गरिएको (इन्टरनेट नभए पनि डाटा लोड हुन)
         try {
-            enableIndexedDbPersistence(db).catch((err) => {
-                if (err.code == 'failed-precondition') {
-                    console.log('Multiple tabs open, persistence can only be enabled in one tab at a a time.');
-                } else if (err.code == 'unimplemented') {
-                    console.log('The current browser does not support all of the features required to enable persistence');
-                }
-            });
+            enableIndexedDbPersistence(db).catch((err) => {});
         } catch (e) {}
 
         const modal = document.getElementById('quizModal');
@@ -642,6 +639,8 @@
 
         window.closeModal = function() { modal.style.display = 'none'; };
         window.closeQuizScreen = function() { clearInterval(timerInterval); quizScreen.style.display = 'none'; }
+        
+        // जब सेट सकिन्छ तब मात्र फुल स्क्रिन विज्ञापन देखाउने र बन्द भएपछि अर्को कार्य गर्ने
         window.closeFullScreenAd = function() {
             fullScreenAd.style.display = 'none';
             if (pendingNextAction) { pendingNextAction(); pendingNextAction = null; }
@@ -654,13 +653,18 @@
                 let nextSetName = availableSets[currentSetIndex];
                 activeQuestions = allSetsData[nextSetName];
                 currentQuestionIndex = 0;
-                window.loadQuizQuestion();
+                
+                // सेट सकिएर अर्को सेट सुरु हुनुअघि फुल स्क्रिन एड देखाउने
+                pendingNextAction = () => { window.loadQuizQuestion(); };
+                fullScreenAd.style.display = 'flex';
             } else {
                 currentSetIndex = 0;
                 let firstSetName = availableSets[0];
                 activeQuestions = allSetsData[firstSetName];
                 currentQuestionIndex = 0;
-                window.loadQuizQuestion();
+                
+                pendingNextAction = () => { window.loadQuizQuestion(); };
+                fullScreenAd.style.display = 'flex';
             }
         }
 
@@ -994,12 +998,9 @@
 
             setTimeout(() => {
                 currentQuestionIndex++;
-                if (currentQuestionIndex > 0 && currentQuestionIndex % 15 === 0 && currentQuestionIndex < activeQuestions.length) {
-                    pendingNextAction = () => { window.loadQuizQuestion(); };
-                    fullScreenAd.style.display = 'flex';
-                } else {
-                    window.loadQuizQuestion();
-                }
+                // १५ प्रश्न पछि आउने विज्ञापनको कोड यहाँबाट पूर्ण रूपमा हटाइएको छ 
+                // र सेटको अन्त्यमा मात्र customPopup र विज्ञापन देखा पर्नेछ।
+                window.loadQuizQuestion();
             }, 1200);
         }
 
@@ -1018,12 +1019,7 @@
 
             setTimeout(() => {
                 currentQuestionIndex++;
-                if (currentQuestionIndex > 0 && currentQuestionIndex % 15 === 0 && currentQuestionIndex < activeQuestions.length) {
-                    pendingNextAction = () => { window.loadQuizQuestion(); };
-                    fullScreenAd.style.display = 'flex';
-                } else {
-                    window.loadQuizQuestion();
-                }
+                window.loadQuizQuestion();
             }, 1200);
         }
 
@@ -1031,7 +1027,6 @@
             if (event.target == modal) { window.closeModal(); }
         }
 
-        // Service Worker दर्ता गर्ने कोड
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
