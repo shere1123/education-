@@ -187,41 +187,49 @@
             margin-bottom: 40px;
         }
 
-        /* Bottom Navigation Bar Styles */
+        /* Bottom Navigation Bar Styles (More बटनसहित) */
         .bottom-nav {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 92%;
-            max-width: 420px;
+            max-width: 450px;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 50px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 10px 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            padding: 10px 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
             z-index: 900;
         }
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             text-decoration: none;
             color: #94a3b8;
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 600;
-            padding: 8px 18px;
+            padding: 8px 12px;
             border-radius: 30px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             gap: 4px;
         }
+        .nav-item i { font-size: 16px; transition: transform 0.3s ease; }
         .nav-item.active {
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
             color: #ffffff;
-            padding: 10px 22px;
+            padding: 10px 16px;
+            border-radius: 30px;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
         }
+        .nav-item.active i { color: #ffffff; transform: scale(1.1); }
+        .nav-item:hover { color: #f8fafc; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -253,7 +261,7 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- Bottom Navigation Bar (More बटनसहित) -->
     <div class="bottom-nav">
         <a href="index.html" class="nav-item">
             <i class="fa-solid fa-house"></i>
@@ -266,6 +274,10 @@
         <a href="news.html" class="nav-item">
             <i class="fa-solid fa-bell"></i>
             <span>News</span>
+        </a>
+        <a href="more.html" class="nav-item">
+            <i class="fa-solid fa-bars"></i>
+            <span>More</span>
         </a>
     </div>
 
@@ -303,7 +315,6 @@
                     vacanciesList.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
-                // Firebase मा डाटा नभएमा खाली सन्देश देखाउने (फेक डेटा पूर्ण रूपमा हटाइयो)
                 if (vacanciesList.length === 0) {
                     vacancyContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">हाल कुनै पनि सूचना उपलब्ध छैन।</div>`;
                     return;
