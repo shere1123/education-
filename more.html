@@ -191,7 +191,6 @@
             border: 1px solid rgba(255,255,255,0.08);
         }
 
-        /* विज्ञापन (Banner Ads) राख्ने ठाउँको स्टाइल (माथि देखाउनको लागि) */
         .banner-ad-container {
             width: 100%;
             background: rgba(30, 41, 59, 0.7);
@@ -219,47 +218,57 @@
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
 
-        /* पप-अप मेनु */
+        /* पप-अप मेनु (विस्तार गरिएको) */
         #popupMenu {
-            display: flex;
+            display: none;
             position: fixed;
-            bottom: 105px;
-            right: 20px;
-            width: 280px;
+            bottom: 95px;
+            right: 15px;
+            width: 230px;
+            max-height: 70vh;
+            overflow-y: auto;
             background: #1e293b;
-            border-radius: 18px;
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
             z-index: 1000;
-            padding: 12px;
+            padding: 10px;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .popup-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
+            gap: 10px;
+            padding: 9px 12px;
             color: #ffffff;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             transition: transform 0.2s;
         }
         .popup-item:active { transform: scale(0.97); }
-        .item-story { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        
+        /* विभिन्न विषयहरूको लागि रङहरू */
+        .item-ramayana { background: linear-gradient(135deg, #f97316 0%, #c2410c 100%); }
+        .item-mahabharata { background: linear-gradient(135deg, #84cc16 0%, #4d7c0f 100%); }
+        .item-shivpuran { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%); }
+        .item-nepalikatha { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .item-story { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); }
         .item-shayari { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
         .item-motivation { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
         .item-history { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+        .item-room { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
 
         .popup-item i {
-            font-size: 16px; width: 26px; height: 26px;
+            font-size: 13px; width: 20px; height: 20px;
             background: rgba(255, 255, 255, 0.2);
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%; color: #ffffff;
+            flex-shrink: 0;
         }
 
         /* Bottom Navigation Bar */
@@ -332,8 +341,24 @@
         </div>
     </div>
 
-    <!-- Firebase कलेक्सनका सहि नामहरूसँग मिलाइएको पप-अप मेनु -->
+    <!-- पप-अप मेनु (नयाँ HTML लिङ्कहरू सहित) -->
     <div id="popupMenu">
+        <a href="ramayana.html" class="popup-item item-ramayana">
+            <i class="fa-solid fa-book-bible"></i>
+            <span>रामायण (Ramayana)</span>
+        </a>
+        <a href="mahabharata.html" class="popup-item item-mahabharata">
+            <i class="fa-solid fa-scroll"></i>
+            <span>महाभारत (Mahabharat)</span>
+        </a>
+        <a href="shivpuran.html" class="popup-item item-shivpuran">
+            <i class="fa-solid fa-om"></i>
+            <span>शिव पुराण (Shiv Puran)</span>
+        </a>
+        <a href="nepalikatha.html" class="popup-item item-nepalikatha">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <span>नेपाली कथा (Nepali Katha)</span>
+        </a>
         <div class="popup-item item-story" onclick="loadCategoryData('stories', 'YouTube कथाहरू')">
             <i class="fa-solid fa-book-open-reader"></i>
             <span>YouTube कथा</span>
@@ -350,6 +375,10 @@
             <i class="fa-solid fa-landmark"></i>
             <span>इतिहास (History)</span>
         </div>
+        <a href="room-rent.html" class="popup-item item-room">
+            <i class="fa-solid fa-house-chimney"></i>
+            <span>Room Rent</span>
+        </a>
     </div>
 
     <div class="bottom-nav">
@@ -411,7 +440,6 @@
             }
         }
 
-        // युट्युब लिङ्क वा ID बाट सही ११ अक्षरको ID मात्र झिक्ने फंक्सन
         function getCleanYouTubeId(input) {
             if (!input) return '';
             if (input.length === 11 && !input.includes('/') && !input.includes('.')) {
@@ -451,7 +479,6 @@
                     }
 
                     let html = '';
-                    currentItems.forecast = []; // placeholder check
                     currentItems.forEach((item, index) => {
                         let rawVidInput = item.videoId || item.videoLink || '';
                         let cleanId = getCleanYouTubeId(rawVidInput);
@@ -501,10 +528,8 @@
 
             let contentHTML = '';
 
-            // विज्ञापन राख्ने ठाउँ (Banner Ad Container) अब माथि राखिएको छ
             let adBannerHTML = `
                 <div class="banner-ad-container">
-                    <!-- यहाँ तपाईं आफ्नो Google AdSense वा जुनसुकै Banner Ad को Script/Code राख्न सक्नुहुन्छ -->
                     <span style="font-size: 13px; color: #94a3b8;">[ Top Banner Ad Here ]</span>
                 </div>
             `;
