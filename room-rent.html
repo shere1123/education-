@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>कोठा भाडा (Room Rent)</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+            --bg-color: #0b0f19;
+            --text-main: #ffffff;
+            --main-theme-color: #e11d48;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0; padding: 0 0 30px 0;
+            overflow-x: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white; text-align: center;
+            padding: 25px 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        header h1 { margin: 0; font-size: 24px; font-weight: 800; color: #f97316; }
+        header p { margin: 6px 0 0 0; font-size: 13px; opacity: 0.8; }
+
+        .container { width: 100%; max-width: 800px; margin: 20px auto; padding: 0 15px; }
+
+        .search-filter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 18px 12px 45px;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #f97316;
+        }
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none; 
+        }
+        .filter-tabs::-webkit-scrollbar { display: none; }
+
+        .filter-btn {
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .filter-btn:hover {
+            border-color: #f97316;
+        }
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media(min-width: 600px) {
+            .content-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .content-card {
+            background: #1e293b;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .content-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(249, 115, 22, 0.5);
+        }
+
+        .thumbnail-box {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #0f172a;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thumbnail-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .icon-overlay {
+            position: absolute;
+            width: 45px; height: 45px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 18px;
+        }
+        .image-overlay { color: #38bdf8; }
+
+        .card-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1.4;
+        }
+        .card-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-date {
+            font-size: 12px;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .read-more-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #fullScreenModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0;
+            width: 100vw; height: 100vh;
+            background-color: #f8fafc;
+            overflow-y: auto;
+            padding: 20px 15px;
+            box-sizing: border-box;
+        }
+        .modal-inner {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 40px;
+        }
+
+        .modal-header-title {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--main-theme-color);
+            line-height: 1.4;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .modal-date {
+            font-size: 15px;
+            color: #0369a1;
+            font-weight: 700;
+        }
+        
+        .modal-image-container {
+            width: 100%;
+            max-height: 60vh;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #e2e8f0;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-image-container img {
+            width: 100%;
+            height: auto;
+            max-height: 60vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-description {
+            font-size: 20px; 
+            color: #1e293b; 
+            line-height: 1.9;
+            font-weight: 700; 
+            background: #ffffff; 
+            padding: 24px; 
+            border-radius: 14px;
+            border: 1px solid #cbd5e1; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            word-wrap: break-word;
+            text-align: justify; 
+        }
+
+        .banner-ad-container {
+            width: 100%;
+            background: #ffffff;
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin: 15px 0;
+        }
+
+        .social-follow-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-radius: 14px;
+            border: 2px solid #fdba74;
+            box-shadow: 0 6px 18px rgba(249, 115, 22, 0.12);
+            margin-top: 10px;
+        }
+        .follow-text {
+            font-size: 16px;
+            font-weight: 800;
+            color: #c2410c;
+        }
+        .social-icons-group {
+            display: flex;
+            gap: 12px;
+        }
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .social-btn:hover { transform: scale(1.1); }
+        .whatsapp-bg { background-color: #25d366; }
+        .phone-bg { background-color: #0284c7; }
+
+        .close-modal-btn {
+            background: linear-gradient(135deg, #e11d48, #be123c);
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 6px 20px rgba(225, 29, 72, 0.3);
+            margin-top: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <h1>कोठा भाडा (Room Rent)</h1>
+        <p>सफा, राम्रा र किफायती फ्ल्याट तथा कोठाको विवरण</p>
+    </header>
+
+    <div class="container">
+        <div class="search-filter-container">
+            <div class="search-box-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search District (जिल्ला खोज्नुहोस्)..." onkeyup="filterBySearch()">
+            </div>
+            
+            <div class="filter-tabs">
+                <button class="filter-btn active" onclick="filterByCategory('all', this)">सबै (All)</button>
+                <button class="filter-btn" onclick="filterByCategory('kathmandu', this)">काठमाडौं</button>
+                <button class="filter-btn" onclick="filterByCategory('lalitpur', this)">ललितपुर</button>
+                <button class="filter-btn" onclick="filterByCategory('bhaktapur', this)">भक्तपुर</button>
+                <button class="filter-btn" onclick="filterByCategory('kaski', this)">कास्की (पोखरा)</button>
+                <button class="filter-btn" onclick="filterByCategory('chitwan', this)">चितवन</button>
+                <button class="filter-btn" onclick="filterByCategory('rupandehi', this)">रूपन्देही</button>
+                <button class="filter-btn" onclick="filterByCategory('jhapa', this)">झापा</button>
+                <button class="filter-btn" onclick="filterByCategory('morang', this)">मोरङ (विराटनगर)</button>
+            </div>
+        </div>
+
+        <div id="contentGrid" class="content-grid">
+            <div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">डाटा लोड हुँदैछ...</div>
+        </div>
+    </div>
+
+    <div id="fullScreenModal">
+        <div class="modal-inner">
+            <div id="modalContentArea"></div>
+            <div id="modalBottomArea"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAe32qMUjBMUBL4N6jS8eyVixK2gHMVuXw",
+            authDomain: "gk-nepal-df869.firebaseapp.com",
+            projectId: "gk-nepal-df869",
+            storageBucket: "gk-nepal-df869.firebasestorage.app",
+            messagingSenderId: "454233438620",
+            appId: "1:454233438620:web:a8292322e04ffcf2b23059"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        try {
+            enableIndexedDbPersistence(db).catch((err) => {});
+        } catch (e) {}
+
+        const siteConfig = {
+            whatsappNumber: "9779800000000", 
+            phoneNumber: "+9779800000000"      
+        };
+
+        let currentItems = [];
+        let currentCategory = 'all';
+        let unsubscribe = null;
+
+        // Firebase Firestore बाट 'room_rent' कलेक्सनको डाटा रियल-टाइममा तानेको
+        function loadRoomRentData() {
+            const grid = document.getElementById('contentGrid');
+            
+            if (unsubscribe) {
+                unsubscribe();
+            }
+
+            try {
+                unsubscribe = onSnapshot(collection(db, "room_rent"), (querySnapshot) => {
+                    currentItems = [];
+                    querySnapshot.forEach((docSnap) => {
+                        currentItems.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+
+                    renderGrid(currentItems);
+                }, (error) => {
+                    console.error("Firebase error: ", error);
+                    grid.innerHTML = `<p style="text-align:center; grid-column: 1/-1; color:#ef4444; padding:30px;">डाटा लोड गर्न सकिएन। इन्टरनेट जडान चेक गर्नुहोस्।</p>`;
+                });
+            } catch (err) {
+                console.error("Error setting up snapshot: ", err);
+            }
+        }
+
+        window.filterByCategory = function(category, btnElement) {
+            currentCategory = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+            
+            document.getElementById('searchInput').value = '';
+            
+            let filtered = currentItems.filter(item => {
+                let matchesCategory = (currentCategory === 'all' || item.category === currentCategory);
+                return matchesCategory;
+            });
+            renderGrid(filtered);
+        }
+
+        window.filterBySearch = function() {
+            let query = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            let filtered = currentItems.filter(item => {
+                let matchesCategory = (currentCategory === 'all' || item.category === currentCategory);
+                let searchKeyText = item.searchKey || item.district || item.title || '';
+                let matchesQuery = searchKeyText.toLowerCase().includes(query) || 
+                                   (item.district && item.district.toLowerCase().includes(query)) || 
+                                   (item.title && item.title.toLowerCase().includes(query)) || 
+                                   (item.description && item.description.toLowerCase().includes(query));
+                                   
+                return matchesCategory && matchesQuery;
+            });
+
+            renderGrid(filtered);
+        }
+
+        function renderGrid(itemsToDisplay) {
+            const grid = document.getElementById('contentGrid');
+            let html = '';
+
+            if (itemsToDisplay.length === 0) {
+                grid.innerHTML = `<p style="text-align:center; grid-column: 1/-1; color:#94a3b8; padding:30px;">कुनै पनि विवरण फेला परेन। (No results found)</p>`;
+                return;
+            }
+
+            itemsToDisplay.forEach((item) => {
+                let originalIndex = currentItems.findIndex(i => i.id === item.id);
+                let displayImg = item.imageUrl || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800';
+
+                html += `
+                    <div class="content-card" onclick="openDetail(${originalIndex})">
+                        <div class="thumbnail-box">
+                            <img src="${displayImg}" alt="Thumbnail" loading="lazy">
+                            <div class="icon-overlay image-overlay"><i class="fa-solid fa-image"></i></div>
+                        </div>
+                        <div class="card-info">
+                            <h3 class="card-title">${item.title}</h3>
+                            <div class="card-meta-row">
+                                <span class="card-date"><i class="fa-regular fa-calendar"></i> ${item.date || 'हालैको'}</span>
+                                <button class="read-more-btn">पुरा हेर्नुहोस्</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        window.openDetail = function(index) {
+            let item = currentItems[index];
+            if (!item) return;
+
+            let descriptionText = item.description || '';
+            let words = descriptionText.split(/\s+/);
+            let descriptionHTML = '';
+            
+            if (words.length > 50) {
+                let firstPart = words.slice(0, 50).join(' ');
+                let secondPart = words.slice(50).join(' ');
+                
+                descriptionHTML = `
+                    <div class="modal-description">
+                        ${firstPart} ...
+                        <div class="banner-ad-container">
+                            <span>[ ब्यानर एड (Banner Ad) ५० शब्द पछि ]</span>
+                        </div>
+                        ${secondPart}
+                    </div>
+                `;
+            } else {
+                descriptionHTML = `
+                    <div class="modal-description">${descriptionText}</div>
+                    <div class="banner-ad-container">
+                        <span>[ ब्यानर एड (Banner Ad) यहाँ देखिनेछ ]</span>
+                    </div>
+                `;
+            }
+
+            let detailImg = item.imageUrl || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800';
+            let mediaBlock = `
+                <div class="modal-image-container">
+                    <img src="${detailImg}" alt="Image">
+                </div>
+            `;
+
+            let contentHTML = `
+                <div class="modal-date"><i class="fa-regular fa-calendar"></i> ${item.date || ''} | जिल्ला: <b>${item.district || 'विवरण छैन'}</b></div>
+                <div class="modal-header-title">${item.title}</div>
+                ${mediaBlock}
+                ${descriptionHTML}
+            `;
+
+            let bottomHTML = `
+                <div class="social-follow-container">
+                    <span class="follow-text">सम्पर्क गर्नुहोस्:</span>
+                    <div class="social-icons-group">
+                        <a href="https://wa.me/${siteConfig.whatsappNumber}" target="_blank" class="social-btn whatsapp-bg" title="WhatsApp मा कुरा गर्नुहोस्"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="tel:${siteConfig.phoneNumber}" class="social-btn phone-bg" title="फोन गर्नुहोस्"><i class="fa-solid fa-phone"></i></a>
+                    </div>
+                </div>
+                <button class="close-modal-btn" onclick="closeFullModal()">बन्द गर्नुहोस् (Close)</button>
+            `;
+
+            document.getElementById('modalContentArea').innerHTML = contentHTML;
+            document.getElementById('modalBottomArea').innerHTML = bottomHTML;
+            document.getElementById('fullScreenModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeFullModal = function() {
+            document.getElementById('modalContentArea').innerHTML = '';
+            document.getElementById('modalBottomArea').innerHTML = '';
+            document.getElementById('fullScreenModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRoomRentData();
+        });
+    </script>
+</body>
+</html>
