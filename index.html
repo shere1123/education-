@@ -190,7 +190,6 @@
         .social-icon-btn:hover { transform: scale(1.1); }
         .fb-bg { background-color: #1877F2; } .wa-bg { background-color: #25D366; } .tt-bg { background-color: #000000; }
 
-        /* क्विज स्क्रिनलाई पूर्ण स्क्रिन बनाउने र पछाडिको कालो वा खाली बक्स हटाउने */
         #quizScreen {
             display: none; 
             position: fixed; 
@@ -201,10 +200,10 @@
             height: 100%;
             background-color: #0b0f19; 
             overflow-y: auto; 
-            padding: 10px 10px 80px 10px; 
+            padding: 15px 10px 80px 10px; 
             box-sizing: border-box;
         }
-        .quiz-wrapper { width: 100%; max-width: 800px; margin: 0 auto; }
+        .quiz-wrapper { width: 100%; max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
 
         #fullScreenAd, #customPopup {
             display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%;
@@ -220,13 +219,30 @@
             border-radius: 10px; cursor: pointer; font-size: 14px; margin-top: 15px; font-weight: bold; width: 100%;
         }
 
+        /* Custom Alert Modal for Acode */
+        #customAlertModal {
+            display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; padding: 20px;
+        }
+        .custom-alert-box {
+            background: #1e293b; color: white; padding: 25px; border-radius: 20px; text-align: center;
+            max-width: 380px; width: 100%; border: 2px solid #3b82f6; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .custom-alert-box h3 { margin-top: 0; color: #60a5fa; font-size: 18px; font-weight: 700; }
+        .custom-alert-box p { color: #cbd5e1; font-size: 14px; line-height: 1.5; margin: 15px 0 20px 0; }
+        .custom-alert-btn {
+            background: var(--primary-gradient); color: white; border: none; padding: 11px 20px;
+            border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
         .banner-ad { 
             text-align: center; 
-            margin: 15px 0; 
+            margin: 10px 0 15px 0; 
             display: flex; 
             justify-content: center; 
             align-items: center;
-            min-height: 60px; 
+            min-height: 55px; 
             width: 100%;
             overflow: hidden; 
         }
@@ -234,33 +250,36 @@
         .quiz-container-box {
             background-color: #ffffff; 
             color: #1e293b; 
-            border-radius: 12px; 
-            padding: 15px 12px;
+            border-radius: 16px; 
+            padding: 20px 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
             margin-bottom: 15px;
             width: 100%;
+            max-width: 600px; 
         }
         
         .reading-question-card {
             background-color: #ffffff;
             color: #1e293b;
-            border-radius: 10px;
-            padding: 15px 12px;
-            margin-bottom: 12px;
+            border-radius: 12px;
+            padding: 18px 15px;
+            margin-bottom: 15px;
             border: 1px solid #cbd5e1;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             width: 100%;
+            max-width: 600px;
         }
 
         .reading-ad-card {
             background: #1e293b;
             color: #ffffff;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             border: 1px solid #3b82f6;
             text-align: center;
             width: 100%;
+            max-width: 600px;
         }
 
         .quiz-header-title { text-align: center; font-weight: bold; font-size: 18px; color: #1e293b; margin-bottom: 2px; }
@@ -283,11 +302,13 @@
         .timer-display { color: #dc2626; font-weight: bold; }
         .quiz-info-row { display: flex; justify-content: space-between; font-size: 13px; color: #475569; margin-bottom: 10px; font-weight: 600; }
         
+        /* प्रश्न देखाउने बक्स (ठूलो र मोटो अक्षर बनाइएको) */
         .question-box { 
-            padding: 14px; 
+            padding: 16px; 
             border-radius: 10px; 
-            font-size: 15px; 
-            font-weight: bold; 
+            font-size: 17px; 
+            font-weight: 800; 
+            line-height: 1.5;
             margin-bottom: 12px; 
             text-align: left; 
             border: 2px solid #7c3aed; 
@@ -297,9 +318,10 @@
         }
 
         .mcq-option {
-            padding: 10px 14px; border-radius: 10px; margin-bottom: 8px;
+            padding: 12px 14px; border-radius: 10px; margin-bottom: 10px;
             display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; 
             border: 2px solid #cbd5e1; background-color: #f8fafc; color: #0f172a;
+            transition: all 0.2s ease;
         }
         .mcq-option span { font-size: 14px; }
         .option-badge { color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
@@ -478,6 +500,15 @@
         </div>
     </div>
 
+    <!-- Custom Alert Modal to replace standard browser alert -->
+    <div id="customAlertModal">
+        <div class="custom-alert-box">
+            <h3>सूचना</h3>
+            <p id="customAlertMessage">सन्देश यहाँ आउनेछ...</p>
+            <button class="custom-alert-btn" onclick="closeCustomAlert()">ਠੀਕ छ (OK)</button>
+        </div>
+    </div>
+
     <div id="quizScreen">
         <div class="quiz-wrapper" id="screenContent"></div>
     </div>
@@ -508,6 +539,8 @@
         const screenContent = document.getElementById('screenContent');
         const fullScreenAd = document.getElementById('fullScreenAd');
         const customPopup = document.getElementById('customPopup');
+        const customAlertModal = document.getElementById('customAlertModal');
+        const customAlertMessage = document.getElementById('customAlertMessage');
 
         let selectedCategoryKey = '';
         let selectedCategoryTitle = '';
@@ -533,6 +566,15 @@
             if (audioCtx.state === 'suspended') { audioCtx.resume(); }
             return audioCtx;
         }
+
+        window.showAlert = function(message) {
+            customAlertMessage.innerText = message;
+            customAlertModal.style.display = 'flex';
+        };
+
+        window.closeCustomAlert = function() {
+            customAlertModal.style.display = 'none';
+        };
 
         function playCorrectSound() {
             try {
@@ -640,7 +682,6 @@
         window.closeModal = function() { modal.style.display = 'none'; };
         window.closeQuizScreen = function() { clearInterval(timerInterval); quizScreen.style.display = 'none'; }
         
-        // जब सेट सकिन्छ तब मात्र फुल स्क्रिन विज्ञापन देखाउने र बन्द भएपछि अर्को कार्य गर्ने
         window.closeFullScreenAd = function() {
             fullScreenAd.style.display = 'none';
             if (pendingNextAction) { pendingNextAction(); pendingNextAction = null; }
@@ -654,7 +695,6 @@
                 activeQuestions = allSetsData[nextSetName];
                 currentQuestionIndex = 0;
                 
-                // सेट सकिएर अर्को सेट सुरु हुनुअघि फुल स्क्रिन एड देखाउने
                 pendingNextAction = () => { window.loadQuizQuestion(); };
                 fullScreenAd.style.display = 'flex';
             } else {
@@ -690,6 +730,12 @@
 
         window.startQuiz = async function(mode) {
             window.closeModal();
+            
+            if (mode === 'live' && !navigator.onLine) {
+                window.showAlert("इन्टरनेट जडान छैन! 'Live Quiz' खेल्नको लागि कृपया इन्टरनेट अन गर्नुहोस्। ");
+                return;
+            }
+
             quizMode = mode;
             quizScreen.style.display = 'flex';
             currentSetIndex = 0;
@@ -726,6 +772,13 @@
 
             } catch (error) {
                 console.error("Error fetching questions: ", error);
+                
+                if (mode === 'live') {
+                    quizScreen.style.display = 'none';
+                    window.showAlert("इन्टरनेट जडान नभएको कारणले 'Live Quiz' सुरु गर्न सकिएन। कृपया Test Quiz वा Reading Book प्रयोग गर्नुहोस्।");
+                    return;
+                }
+
                 screenContent.innerHTML = `<div class="quiz-container-box" style="text-align: center; color: #dc2626; font-weight: bold; padding: 40px;">प्रश्नहरू लोड गर्न सकिएन। इन्टरनेट कनेक्सन जाँच गर्नुहोस्!</div>`;
             }
         };
@@ -841,7 +894,7 @@
             });
 
             screenContent.innerHTML = `
-                <div class="quiz-container-box" style="padding: 10px 0; background: transparent; box-shadow: none;">
+                <div class="quiz-container-box" style="padding: 10px 0; background: transparent; box-shadow: none; max-width: 600px;">
                     <div class="quiz-container-box">
                         <div class="quiz-header-title">📖 READING BOOK (${setName})</div>
                         <div class="quiz-sub-title">${selectedCategoryTitle}</div>
@@ -849,7 +902,7 @@
                     
                     ${allQuestionsHTML}
 
-                    <div style="padding: 0 5px;">
+                    <div style="padding: 0 5px; width: 100%;">
                         <button class="back-btn" style="background-color: #475569; margin-top: 10px;" onclick="openReadingBookSets()">⬅ अन्य सेटहरूको सूचीमा फर्कनुहोस्</button>
                     </div>
                 </div>
@@ -867,6 +920,13 @@
 
         window.loadQuizQuestion = function() {
             clearInterval(timerInterval);
+
+            if (quizMode === 'live' && !navigator.onLine) {
+                clearInterval(timerInterval);
+                quizScreen.style.display = 'none';
+                window.showAlert("इन्टरनेट जडान विच्छेद भयो! 'Live Quiz' बन्द गरिएको छ।");
+                return;
+            }
 
             if (currentQuestionIndex >= activeQuestions.length) {
                 let currentSetName = availableSets[currentSetIndex];
@@ -926,7 +986,7 @@
 
             screenContent.innerHTML = `
                 <div class="banner-ad" id="topBannerAd"></div>
-                <div class="quiz-container-box" style="padding: 15px;">
+                <div class="quiz-container-box">
                     <div class="quiz-header-title">${headerTitle} (${currentSetName})</div>
                     <div class="quiz-sub-title">${selectedCategoryTitle}</div>
                     
@@ -959,6 +1019,13 @@
                 timeLeft = 15;
                 const timeCountElem = document.getElementById('timeCount');
                 timerInterval = setInterval(() => {
+                    if (!navigator.onLine) {
+                        clearInterval(timerInterval);
+                        quizScreen.style.display = 'none';
+                        window.showAlert("इन्टरनेट जडान विच्छेद भयो! 'Live Quiz' बन्द गरिएको छ।");
+                        return;
+                    }
+
                     timeLeft--;
                     if (timeCountElem) { timeCountElem.innerText = timeLeft; }
                     if (timeLeft > 0) { playTickSound(timeLeft <= 5); }
@@ -998,8 +1065,6 @@
 
             setTimeout(() => {
                 currentQuestionIndex++;
-                // १५ प्रश्न पछि आउने विज्ञापनको कोड यहाँबाट पूर्ण रूपमा हटाइएको छ 
-                // र सेटको अन्त्यमा मात्र customPopup र विज्ञापन देखा पर्नेछ।
                 window.loadQuizQuestion();
             }, 1200);
         }
