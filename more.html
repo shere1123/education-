@@ -9,28 +9,32 @@
     <style>
         * { box-sizing: border-box; }
         :root {
-            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-            --bg-color: #0b0f19;
-            --text-main: #ffffff;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+            --bg-color: #07090f;
+            --card-bg: #111827;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
             --text-sub: #94a3b8;
+            --accent-color: #38bdf8;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            margin: 0; padding: 0 0 90px 0;
+            margin: 0; padding: 0 0 100px 0;
             overflow-x: hidden;
         }
         header {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #111827 0%, #0b0f19 100%);
             color: white; text-align: center;
-            padding: 25px 20px; 
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 30px 20px; 
+            border-bottom: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
-        header h1 { margin: 0; font-size: 24px; font-weight: 800; }
-        header p { margin: 6px 0 0 0; font-size: 13px; opacity: 0.8; }
+        header h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
+        header p { margin: 8px 0 0 0; font-size: 14px; color: var(--text-sub); }
 
-        .container { width: 100%; max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        .container { width: 100%; max-width: 900px; margin: 25px auto; padding: 0 15px; }
 
         .content-grid {
             display: grid;
@@ -38,29 +42,30 @@
             gap: 20px;
         }
         @media(min-width: 600px) {
-            .content-grid { grid-template-columns: repeat(2, 1fr); }
+            .content-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
         }
 
         .content-card {
-            background: #1e293b;
-            border-radius: 14px;
+            background: var(--card-bg);
+            border-radius: 16px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             cursor: pointer;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
         }
         .content-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-6px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.15);
         }
 
         .thumbnail-box {
             width: 100%;
             aspect-ratio: 16 / 9;
-            background-color: #0f172a;
+            background-color: #030712;
             position: relative;
             overflow: hidden;
             display: flex;
@@ -71,37 +76,50 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .content-card:hover .thumbnail-box img {
+            transform: scale(1.05);
         }
         .play-icon-overlay {
             position: absolute;
-            width: 45px; height: 45px;
-            background: rgba(0, 0, 0, 0.7);
+            width: 50px; height: 50px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ff0000;
+            color: #ef4444;
             font-size: 18px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease;
+        }
+        .content-card:hover .play-icon-overlay {
+            transform: scale(1.1);
         }
 
         .card-info {
-            padding: 15px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         .card-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             color: #ffffff;
             margin: 0;
-            line-height: 1.4;
+            line-height: 1.45;
         }
         .card-date {
             font-size: 12px;
-            color: #38bdf8;
+            color: var(--accent-color);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         /* फुलस्क्रिन मोडल */
@@ -111,23 +129,24 @@
             z-index: 9999;
             left: 0; top: 0;
             width: 100vw; height: 100vh;
-            background-color: #07090f;
+            background-color: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(10px);
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
             box-sizing: border-box;
         }
         .modal-inner {
             width: 100%;
-            max-width: 900px;
+            max-width: 850px;
             margin: 0 auto;
-            padding: 10px 0 40px 0;
+            padding: 10px 0 50px 0;
             display: flex;
             flex-direction: column;
             min-height: 100%;
             justify-content: space-between;
         }
         .modal-header-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
             color: #ffffff;
             margin-bottom: 12px;
@@ -135,9 +154,12 @@
         }
         .modal-date {
             font-size: 14px;
-            color: #38bdf8;
+            color: var(--accent-color);
             margin-bottom: 12px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .video-container {
@@ -145,11 +167,11 @@
             width: 100%;
             aspect-ratio: 16 / 9;
             background: #000;
-            border-radius: 14px;
+            border-radius: 16px;
             overflow: hidden;
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
         }
         .video-container iframe {
             position: absolute;
@@ -162,11 +184,11 @@
             width: 100%;
             max-height: 60vh;
             margin-bottom: 20px;
-            border-radius: 14px;
+            border-radius: 16px;
             overflow: hidden;
-            background: #1e293b;
+            background: #111827;
             border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -179,30 +201,32 @@
             display: block;
         }
         .modal-description {
-            font-size: 17px;
-            color: #f1f5f9;
+            font-size: 18px;
+            color: #e2e8f0;
             line-height: 1.8;
-            font-weight: 500;
+            font-weight: 400;
             white-space: pre-line;
             margin-bottom: 25px;
-            background: rgba(30, 41, 59, 0.5);
-            padding: 20px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(17, 24, 39, 0.7);
+            padding: 22px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
         }
 
         .banner-ad-container {
             width: 100%;
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(17, 24, 39, 0.8);
             border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 14px;
+            padding: 18px;
             text-align: center;
             margin-bottom: 20px;
             min-height: 90px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: var(--text-sub);
+            font-size: 13px;
         }
 
         .close-modal-btn {
@@ -215,60 +239,79 @@
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+            transition: opacity 0.2s;
         }
+        .close-modal-btn:hover { opacity: 0.9; }
 
-        /* पप-अप मेनु (विस्तार गरिएको) */
+        /* आकर्षक पप-अप मेनु (Stunning Menu Design) */
         #popupMenu {
             display: none;
             position: fixed;
             bottom: 95px;
             right: 15px;
-            width: 230px;
-            max-height: 70vh;
+            width: 260px;
+            max-height: 72vh;
             overflow-y: auto;
-            background: #1e293b;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
             z-index: 1000;
-            padding: 10px;
+            padding: 12px;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
+        
+        /* Custom Scrollbar for Popup */
+        #popupMenu::-webkit-scrollbar {
+            width: 5px;
+        }
+        #popupMenu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
         .popup-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 9px 12px;
+            gap: 12px;
+            padding: 11px 14px;
             color: #ffffff;
             text-decoration: none;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: all 0.25s ease;
+        }
+        .popup-item:hover {
+            transform: translateX(4px);
+            filter: brightness(1.1);
         }
         .popup-item:active { transform: scale(0.97); }
         
-        /* विभिन्न विषयहरूको लागि रङहरू */
-        .item-ramayana { background: linear-gradient(135deg, #f97316 0%, #c2410c 100%); }
-        .item-mahabharata { background: linear-gradient(135deg, #84cc16 0%, #4d7c0f 100%); }
-        .item-shivpuran { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%); }
-        .item-nepalikatha { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-        .item-story { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); }
-        .item-shayari { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
+        /* नयाँ र आकर्षक विषयगत रङहरू (Gorgeous Gradients) */
+        .item-ramayana { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .item-mahabharata { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .item-shivpuran { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+        .item-nepalikatha { background: linear-gradient(135deg, #3b82f6 100%, #2563eb 0%); }
+        .item-story { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+        .item-shayari { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
         .item-motivation { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-        .item-history { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
-        .item-room { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+        .item-history { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .item-room { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); }
 
         .popup-item i {
-            font-size: 13px; width: 20px; height: 20px;
-            background: rgba(255, 255, 255, 0.2);
+            font-size: 14px; width: 28px; height: 28px;
+            background: rgba(255, 255, 255, 0.22);
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%; color: #ffffff;
             flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         /* Bottom Navigation Bar */
@@ -296,7 +339,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            color: #94a3b8;
+            color: var(--text-sub);
             font-size: 11px;
             font-weight: 600;
             padding: 8px 12px;
@@ -307,11 +350,11 @@
         }
         .nav-item i { font-size: 16px; transition: transform 0.3s ease; }
         .nav-item.active {
-            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            background: var(--primary-gradient);
             color: #ffffff;
             padding: 10px 16px;
             border-radius: 30px;
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
         }
         .nav-item.active i { color: #ffffff; transform: scale(1.1); }
         .nav-item:hover { color: #f8fafc; }
@@ -327,7 +370,8 @@
 
     <div class="container">
         <div id="contentGrid" class="content-grid">
-            <div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">
+            <div style="text-align: center; color: var(--text-sub); grid-column: span 2; padding: 50px; font-weight: 600;">
+                <i class="fa-regular fa-compass fa-2x" style="margin-bottom: 12px; display: block; color: var(--accent-color);"></i>।
             </div>
         </div>
     </div>
@@ -341,7 +385,7 @@
         </div>
     </div>
 
-    <!-- पप-अप मेनु (नयाँ HTML लिङ्कहरू सहित) -->
+    <!-- आकर्षक पप-अप मेनु -->
     <div id="popupMenu">
         <a href="ramayana.html" class="popup-item item-ramayana">
             <i class="fa-solid fa-book-bible"></i>
@@ -456,10 +500,10 @@
             if(popup) popup.style.display = 'none'; 
             
             document.getElementById('pageTitle').innerText = titleText;
-            document.getElementById('pageSubtitle').innerText = 'रियल-टाइम लोड हुँदैछ...';
+            document.getElementById('pageSubtitle').innerText = 'डेटा लोड हुँदैछ...';
             
             const grid = document.getElementById('contentGrid');
-            grid.innerHTML = `<div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">डाटा लोड हुँदैछ...</div>`;
+            grid.innerHTML = `<div style="text-align: center; color: var(--text-sub); grid-column: span 2; padding: 50px; font-weight: 600;">डाटा लोड हुँदैछ...</div>`;
 
             if (unsubscribe) {
                 unsubscribe();
@@ -473,7 +517,7 @@
                     });
 
                     if (currentItems.length === 0) {
-                        grid.innerHTML = `<div style="text-align: center; color: #94a3b8; grid-column: span 2; padding: 40px; font-weight: bold;">यस क्याटेगोरीमा हाल कुनै सामग्री उपलब्ध छैन।</div>`;
+                        grid.innerHTML = `<div style="text-align: center; color: var(--text-sub); grid-column: span 2; padding: 50px; font-weight: 600;">यस क्याटेगोरीमा हाल कुनै सामग्री उपलब्ध छैन।</div>`;
                         document.getElementById('pageSubtitle').innerText = 'कुनै सामग्री छैन';
                         return;
                     }
@@ -511,7 +555,7 @@
                     document.getElementById('pageSubtitle').innerText = 'फुलस्क्रिन अवलोकन';
                 }, (error) => {
                     console.error("Firebase error: ", error);
-                    grid.innerHTML = `<div style="text-align: center; color: #ef4444; grid-column: span 2; padding: 40px; font-weight: bold;">डाटा लोड गर्न सकिएन। इन्टरनेट जडान चेक गर्नुहोस्।</div>`;
+                    grid.innerHTML = `<div style="text-align: center; color: #ef4444; grid-column: span 2; padding: 50px; font-weight: 600;">डाटा लोड गर्न सकिएन। इन्टरनेट जडान चेक गर्नुहोस्।</div>`;
                 });
             } catch (err) {
                 console.error("Error setting up snapshot: ", err);
@@ -530,7 +574,7 @@
 
             let adBannerHTML = `
                 <div class="banner-ad-container">
-                    <span style="font-size: 13px; color: #94a3b8;">[ Top Banner Ad Here ]</span>
+                    <span>[ Top Banner Ad Here ]</span>
                 </div>
             `;
 
