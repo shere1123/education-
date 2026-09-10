@@ -417,7 +417,8 @@
             }
 
             try {
-                unsubscribe = onSnapshot(collection(db, "room_rent"), (querySnapshot) => {
+                // 'room_rent' लाई 'roomrent' मा बदलियो
+                unsubscribe = onSnapshot(collection(db, "roomrent"), (querySnapshot) => {
                     currentItems = [];
                     querySnapshot.forEach((docSnap) => {
                         currentItems.push({ id: docSnap.id, ...docSnap.data() });
@@ -507,7 +508,8 @@
             // View Count बढाउने कोड (Firebase Firestore Increment)
             if (item.id) {
                 try {
-                    const docRef = doc(db, "room_rent", item.id);
+                    // यहाँ पनि 'room_rent' लाई 'roomrent' मा बदलियो
+                    const docRef = doc(db, "roomrent", item.id);
                     await updateDoc(docRef, {
                         viewCount: increment(1)
                     });
