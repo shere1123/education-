@@ -87,17 +87,20 @@
             flex-direction: column;
             gap: 6px;
         }
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #38bdf8;
+            font-weight: 600;
+        }
         .news-title {
             font-size: 16px;
             font-weight: 700;
             color: #ffffff;
             margin: 0;
             line-height: 1.4;
-        }
-        .news-date {
-            font-size: 12px;
-            color: #38bdf8;
-            font-weight: 600;
         }
 
         /* True Full Screen Reading View */
@@ -127,7 +130,10 @@
             margin-bottom: 12px;
             line-height: 1.45;
         }
-        .modal-date {
+        .modal-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 15px;
             color: #38bdf8;
             margin-bottom: 15px;
@@ -186,7 +192,7 @@
             margin-bottom: 40px;
         }
 
-        /* Bottom Navigation Bar Styles (More बटनसहित) */
+        /* Bottom Navigation Bar Styles */
         .bottom-nav {
             position: fixed;
             bottom: 20px;
@@ -258,7 +264,7 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation Bar (More बटनसहित) -->
+    <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
         <a href="index.html" class="nav-item">
             <i class="fa-solid fa-house"></i>
@@ -280,7 +286,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, increment, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAe32qMUjBMUBL4N6jS8eyVixK2gHMVuXw",
@@ -328,6 +334,7 @@
             let html = '';
             newsList.forEach((item, index) => {
                 let imgTag = item.imageUrl ? `<img src="${item.imageUrl}" alt="News Banner" loading="lazy">` : `<div class="thumbnail-placeholder">समाचार ब्यानर</div>`;
+                let viewsCount = item.views || 0;
                 
                 html += `
                     <div class="news-card" onclick="openNewsDetail(${index})">
@@ -335,7 +342,10 @@
                             ${imgTag}
                         </div>
                         <div class="news-info">
-                            <span class="news-date"><i class="fa-regular fa-calendar"></i> ${item.date || 'हालैको समाचार'}</span>
+                            <div class="news-meta">
+                                <span><i class="fa-regular fa-calendar"></i> ${item.date || 'हालैको'}</span>
+                                <span><i class="fa-regular fa-eye"></i> ${viewsCount} views</span>
+                            </div>
                             <h3 class="news-title">${item.title}</h3>
                         </div>
                     </div>
@@ -344,14 +354,29 @@
             newsContainer.innerHTML = html;
         }
 
-        window.openNewsDetail = function(index) {
+        window.openNewsDetail = async function(index) {
             let item = newsList[index];
             if (!item) return;
+
+            // Increment views in Firestore
+            try {
+                const newsRef = doc(db, "news", item.id);
+                await updateDoc(newsRef, {
+                    views: increment(1)
+                });
+                // Update local array state so UI reflects it when closed/re-rendered
+                item.views = (item.views || 0) + 1;
+            } catch (err) {
+                console.error("Error updating views: ", err);
+            }
 
             let modalImgTag = item.imageUrl ? `<div class="modal-image-container"><img src="${item.imageUrl}" alt="Detail Banner"></div>` : '';
 
             modalContentArea.innerHTML = `
-                <div class="modal-date"><i class="fa-regular fa-calendar"></i> ${item.date || ''}</div>
+                <div class="modal-meta">
+                    <span><i class="fa-regular fa-calendar"></i> ${item.date || ''}</span>
+                    <span><i class="fa-regular fa-eye"></i> ${item.views || 0} views</span>
+                </div>
                 <div class="modal-header-title">${item.title}</div>
                 ${modalImgTag}
                 <div class="modal-description">${item.description || 'विस्तृत विवरण उपलब्ध छैन।'}</div>
@@ -364,6 +389,7 @@
         window.closeFullModal = function() {
             fullScreenModal.style.display = 'none';
             document.body.style.overflow = 'auto';
+            renderNews(); // Re-render to show updated view counts on cards
         }
 
         fetchNews();
